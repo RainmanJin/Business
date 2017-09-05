@@ -1,0 +1,593 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>我的工作空间</title>
+    <link type="text/css" rel="stylesheet" href="css/easy-responsive-tabs.css" />
+	<link rel="stylesheet" href="css/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="css/workspace.css">
+    <script src="js/jquery-1.11.1.js"></script>
+	<script type="text/javascript" src="js/jquery.ztree.core-3.5.min.js"></script>
+    <script type="text/javascript" src="js/jquery.ztree.exedit.js"></script>
+    <script type="text/javascript" src="js/jquery.ztree.excheck-3.5.js"></script>
+    <script src="js/easyResponsiveTabs.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/worksapceRPC.js"></script>
+    <script type="text/javascript" src="js/uuid.js"></script>
+</head>
+<body>
+    <div class="demo">
+        <h1>我的工作空间</h1>
+         <div style="height: 30px; clear: both"></div>
+        <!--verticalTab Tab-->
+        <div id="verticalTab" style="position: relative;left: 0px; top: 0px">
+            <ul class="resp-tabs-list">
+                <li id="data">我的数据</li>
+                <li id="design">我的设计</li>
+                <li id="report">我的报告</li>
+
+            </ul>
+            <div class="resp-tabs-container">
+                <div>
+                    <ul id="tabData" class="ztree"></ul>
+                </div>
+                <div>
+                    <ul id="tabDesign" class="ztree"></ul>
+                </div>
+                <div>
+                    <ul id="tabReport" class="ztree"></ul>
+                </div>
+
+            </div>
+        </div>
+        <br />
+
+        <div id="contentDiv">
+        </div>
+        <!--<input id="savebtn" type="button" style="position: relative; left: 150px;" value="保存"></input>-->
+
+        <!--<input id="newbtn" type="button" style="position: relative; left: 20px;" value="新建"></input>-->
+        <div id="newFileDiv" class="optbutton" style="left: 450px;top: 120px" >
+
+            <div id="newFileDiv-img" title="新建">
+                <img alt="新建" src="css/img/newFile.png"/>
+            </div>
+            <div id="newFileDiv-name" style="left: 26px;top: 6px">
+                新建
+            </div>
+
+        </div>
+        <div id="saveFileDiv"  class="optbutton" style="left: 550px;top: 120px">
+
+            <div id="saveFileDiv-img" title="保存">
+                <img alt="保存" src="css/img/save.png"/>
+            </div>
+            <div id="saveFileDiv-name" style="left: 26px;top: 6px">
+                保存
+            </div>
+
+        </div>
+        <div id="deleteFileDiv"  class="optbutton" style="left: 650px;top: 120px">
+
+            <div id="deleteFileDiv-img" title="删除">
+                <img alt="删除" src="css/img/remove.png"/>
+            </div>
+            <div id="deleteFileDiv-name" style="left: 26px;top: 6px">
+                删除
+            </div>
+
+        </div>
+        <br />
+    </div>
+</body>
+<script type="text/javascript">
+
+    //zTree 的配置
+    var setting3 = {
+        view: {
+            addHoverDom: addHoverDom,
+            removeHoverDom: removeHoverDom,
+            selectedMulti: false
+        },
+        edit: {
+            enable: true,
+            editNameSelectAll: true,
+            showRemoveBtn: showRemoveBtn,
+            showRenameBtn: showRenameBtn
+        },
+        data: {
+            simpleData: {
+                enable: true
+            }
+        },
+        callback: {
+            beforeDrag: beforeDrag,
+            beforeEditName: beforeEditName,
+            beforeRemove: beforeRemove,
+            beforeRename: beforeRename,
+            onRemove: onRemove,
+            onRename: onRename,
+            onClick:onClick
+        }
+    };
+
+		var zNodes =[
+			{ id:1, pId:0, name:"普通的父节点", t:"我很普通，随便点我吧", open:true},
+			{ id:11, pId:1, name:"叶子节点 - 1", t:"我很普通，随便点我吧"},
+			{ id:12, pId:1, name:"叶子节点 - 2", t:"我很普通，随便点我吧"},
+			{ id:13, pId:1, name:"叶子节点 - 3", t:"我很普通，随便点我吧"},
+			{ id:2, pId:0, name:"NB的父节点", t:"点我可以，但是不能点我的子节点，有本事点一个你试试看？", open:true},
+			{ id:21, pId:2, name:"叶子节点2 - 1", t:"你哪个单位的？敢随便点我？小心点儿..", click:false},
+			{ id:22, pId:2, name:"叶子节点2 - 2", t:"我有老爸罩着呢，点击我的小心点儿..", click:false},
+			{ id:23, pId:2, name:"叶子节点2 - 3", t:"好歹我也是个领导，别普通群众就来点击我..", click:false},
+			{ id:3, pId:0, name:"郁闷的父节点", t:"别点我，我好害怕...我的子节点随便点吧...", open:true, click:false },
+			{ id:31, pId:3, name:"叶子节点3 - 1", t:"唉，随便点我吧"},
+			{ id:32, pId:3, name:"叶子节点3 - 2", t:"唉，随便点我吧"},
+			{ id:33, pId:3, name:"叶子节点3 - 3", t:"唉，随便点我吧"}
+		];
+
+//    var log, className = "dark";
+    function beforeClick(treeId, treeNode, clickFlag) {
+//        className = (className === "dark" ? "":"dark");
+//        showLog("[ "+getTime()+" beforeClick ]&nbsp;&nbsp;" + treeNode.name );
+        return (treeNode.click != false);
+    }
+    function onClick(event, treeId, treeNode, clickFlag) {
+       // showLog("[ "+getTime()+" onClick ]&nbsp;&nbsp;clickFlag = " + clickFlag + " (" + (clickFlag===1 ? "普通选中": (clickFlag===0 ? "<b>取消选中</b>" : "<b>追加选中</b>")) + ")");
+        //
+        var directoryId = treeNode.id;
+//        console.log(getTime()+"  directoryId:"+directoryId);
+        remoteRPC.getFileList(userID,directoryId,function(result){
+            showFileList(result);
+        });
+
+    }
+    function beforeDrag(treeId, treeNodes) {
+        for (var i=0,l=treeNodes.length; i<l; i++) {
+            if (treeNodes[i].drag === false) {
+                return false;
+            }
+        }
+        return true;
+    }
+    function beforeDrop(treeId, treeNodes, targetNode, moveType) {
+        return targetNode ? targetNode.drop !== false : true;
+    }
+    function showLog(str) {
+//        if (!log) log = $("#log");
+//        log.append("<li class='"+className+"'>"+str+"</li>");
+//        if(log.children("li").length > 8) {
+//            log.get(0).removeChild(log.children("li")[0]);
+//        }
+        console.log(str);
+    }
+    function getTime() {
+        var now= new Date(),
+                h=now.getHours(),
+                m=now.getMinutes(),
+                s=now.getSeconds();
+        return (h+":"+m+":"+s);
+    }
+    function beforeEditName(treeId, treeNode) {
+//        className = (className === "dark" ? "":"dark");
+        showLog("[ "+getTime()+" beforeEditName ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name);
+        var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+        zTree.selectNode(treeNode);
+        remoteRPC.getFileList(userID,treeNode.id,function(result){
+            showFileList(result);
+
+        });
+        return confirm("进入节点 -- " + treeNode.name + " 的编辑状态吗？");
+    }
+    function beforeRemove(treeId, treeNode) {
+//        className = (className === "dark" ? "":"dark");
+        showLog("[ "+getTime()+" beforeRemove ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name);
+        var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+        zTree.selectNode(treeNode);
+        remoteRPC.getFileList(userID,treeNode.id,function(result){
+            showFileList(result);
+
+        });
+        if(treeNode["isEmpty"] == "false")
+        {
+            alert("请选择非空目录删除！");
+            return false;
+        }
+        return confirm("确认删除 节点 -- " + treeNode.name + " 吗？");
+    }
+    function onRemove(e, treeId, treeNode) {
+        //select the first one
+        var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+
+        var nodes =zTree.getNodes();
+        if(nodes.length>0 && nodes[0] != undefined)
+        {
+            zTree.selectNode( nodes[0]);
+            remoteRPC.getFileList(userID,nodes[0].id,function(result){
+                showFileList(result);
+
+            });
+
+        }
+    }
+    function beforeRename(treeId, treeNode, newName, isCancel) {
+//        className = (className === "dark" ? "":"dark");
+//        showLog((isCancel ? "<span style='color:red'>":"") + "[ "+getTime()+" beforeRename ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name + (isCancel ? "</span>":""));
+        if (newName.length == 0) {
+            alert("节点名称不能为空.");
+            var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+            setTimeout(function(){zTree.editName(treeNode)}, 10);
+            return false;
+        }
+        return true;
+    }
+    function onRename(e, treeId, treeNode, isCancel) {
+//        showLog((isCancel ? "<span style='color:red'>":"") + "[ "+getTime()+" onRename ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name + (isCancel ? "</span>":""));
+    }
+    function showRemoveBtn(treeId, treeNode) {
+        var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+
+        return zTree.getNodes().length>1;
+    }
+    function showRenameBtn(treeId, treeNode) {
+        return true;
+    }
+
+    function addHoverDom(treeId, treeNode) {
+        var sObj = $("#" + treeNode.tId + "_span");
+        if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;
+        var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+                + "' title='add node' onfocus='this.blur();'></span>";
+        sObj.after(addStr);
+        var btn = $("#addBtn_"+treeNode.tId);
+        if (btn) btn.bind("click", function(){
+            var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+
+            zTree.addNodes(treeNode, {id:uuid.v4(), pId:treeNode.id,isEmpty:"true", name:tabId2nameMap[currentSelectedTab] + (newTreeItemCount++)});
+//            var nodes = zTree.transformToArray(zTree.getNodes());
+//            remoteRPC.saveDirectories(currentSelectedTab,nodes,function(){
+//                console.log("saveDirectories success !")
+//            });
+            return false;
+        });
+    };
+
+    function removeHoverDom(treeId, treeNode) {
+        $("#addBtn_"+treeNode.tId).unbind().remove();
+    }
+    /**
+     * 显示文件列表
+     * @param jsonlist 后台获取的json数据
+     * [
+     { id:1, name:"文件 1",type:"f"},
+     { id:1, name:"文件 2",type:"f"},
+     { id:1, name:"文件 3",type:"f"},
+     { id:1, name:"文件夹 1",type:"d"},
+     { id:1, name:"文件夹 2",type:"d"}
+     ]
+     *
+     */
+    function showFileList(jsonlist)
+    {
+
+        $('#contentDiv').empty();
+        currentSelectedFileItem = null;
+        currentFileItems = null;
+        if(jsonlist == undefined || jsonlist == null || jsonlist.length ==0)
+        {
+
+//            addNewFileDiv();
+//            $("#newFileDiv").click(function()
+//            {
+//                openBIEditor("");
+//            });
+            return;
+        }
+        var start = {x: 0, y: 0};
+        //test........
+        var total = jsonlist.length;// Math.random()*50;
+        var column = 4;
+        var hSpace = 20,itemHeight = 66;
+        var vSpace = 20,itemWidth = 105;
+        var row = parseInt(total / column) + 1;
+        var index = 0;
+        var fileItemObj ;
+        for (var j = 0; j < row; j++){
+            for (var i = 0; i < column; i++) {
+                index = j * column + i;
+
+                if (index < total) {
+                    fileItemObj = jsonlist[index];
+//                    addFileItem(index.toString(),"test", index%2==0?"d":"f", {x: start.x + i * (itemWidth + hSpace), y: start.y + j * (itemHeight + vSpace)});
+                    addFileItem(fileItemObj["id"],fileItemObj["name"], fileItemObj["type"], {x: start.x + i * (itemWidth + hSpace), y: start.y + j * (itemHeight + vSpace)});
+                }
+            }
+        }
+        currentFileItems = jsonlist;
+        //console.log("show file list "+$('.fileItem'));
+        $(".fileItem").dblclick(function()
+        {
+            var type = $(this).attr("filetype");
+            var fileCode = $(this).attr("filecode");
+            if(type == "d")
+            {
+                var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+                var node = zTree.getNodeByParam("id", fileCode, null);
+                if(node != null)
+                {
+                    zTree.selectNode(node);
+                    remoteRPC.getFileList(userID,node.id,function(result){
+                        showFileList(result);
+                    });
+                }
+            }else
+            {
+                $("#editor_para",parent.document.body).attr("value","mname="+currentSelectedTab+"&opt=edit&id="+fileCode);
+               openBIEditor();
+            }
+            console.log("fileItem clicked!!!"+type);
+        });
+        $(".fileItem").click(function()
+        {
+            $(".fileItemSelected").removeClass("fileItemSelected");
+            $(this).addClass("fileItemSelected");
+            currentSelectedFileItem = {id: $(this).attr("filecode"),type:$(this).attr("filetype")};
+        });
+    }
+    /**
+     * 打开编辑器页面
+     */
+    function openBIEditor()
+    {
+        //console.log("openBIEditor :"+fileId))
+
+        var editorURL = "http://172.17.199.154:8088/sofa/flex-dashboard/editor/DashboardEditor.html";
+
+        $('#datatool_iframe',parent.document.body).attr("src", editorURL);
+
+
+    }
+    var fileCount = 0;
+    /**
+     * 增加一个文件或文件夹对象到页面
+     * @param filecod 对应目录文件或文件夹的id
+     * @param name 名称
+     * @param type d 文件夹 f 文件
+     * @param position 位置坐标{x:20,y:100}
+     */
+    function addFileItem(filecode,name,type,position)
+    {
+        fileCount++;
+        var filepreName = type=='d'? "d" : "f";
+        filepreName = filepreName +fileCount;
+        var imageIcon = type=='d'? "folder.png" : "txt.png";
+        var node = "<div id='"+filepreName+"' title='"+name+"'  class='fileItem' filecode='"+filecode+"' filetype='"+type+"' style='left: "+position.x+"px; top: "+position.y+"px'>"
+                +"<div id='"+filepreName+"-img' class='iconStyle' >"
+                +"<img src='css/img/"+imageIcon+"'/>"
+                +"</div>"
+                +" <div id='"+filepreName+"-name' class='nameStyle'>"+name+"</div>"
+                +"</div>";
+
+        $('#contentDiv').append(node);
+    }
+    /**
+     * 创建 新建文件 div
+     */
+    function addNewFileDiv()
+    {
+        var position = {x: $('#contentDiv').width()/2,y: $('#contentDiv').height()/2};
+        var name = "新建文件";
+        var node = "<div id='newFileDiv'  class='newFile'  style='left: "+position.x+"px; top: "+position.y+"px'>"
+                +"<div id='newFileDiv-img' class='newFileStyle' title='"+name+"'>"
+                +"<img src='css/img/newFile.png' alt='"+name+"'/>"
+                +"</div>"
+                +" <div id='newFileDiv-name'>"+name+"</div>"
+                +"</div>";
+
+        $('#contentDiv').append(node);
+    }
+
+
+    //
+    //
+    //
+    var remoteRPC = new WorkSpaceRPC();
+    var newTreeItemCount = 1;
+    var currentSelectedTab = "tabData";
+    var tabDataLoaded = false;
+    var tabDesignLoaded = false;
+    var tabReportLoaded = false;
+    var userID = "admin";
+
+    var currentSelectedFileItem = null;
+    var currentFileItems = null;
+    var tabId2nameMap = {tabData:"我的数据",tabDesign:"我的设计",tabReport:"我的报告"};
+    /**
+     * 加载某个tab内容数据
+     * @param tabid
+     */
+    function loadTabContent(tabid)
+    {
+        remoteRPC.getTreeData(userID,tabid,function(treedata)
+        {
+            newTreeItemCount = 1;
+            if(treedata == null ||treedata.length == 0)
+            {
+                var firstNodeName = tabId2nameMap[currentSelectedTab];
+
+                treedata = [{ id:uuid.v4(), pId:0, name:firstNodeName,  isEmpty:"true"}];
+            }
+            $.fn.zTree.init($("#"+tabid), setting3, treedata);
+            var zTree = $.fn.zTree.getZTreeObj(tabid);
+
+            var nodes =zTree.getNodes();
+            if(nodes.length>0 && nodes[0] != undefined)
+            {
+                zTree.selectNode( nodes[0]);
+                remoteRPC.getFileList(userID,nodes[0].id,function(result){
+                    showFileList(result);
+//                    console.log(result);
+                });
+
+            }else
+            {
+                showFileList(null);
+            }
+        });
+    }
+    //////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
+    $('#newFileDiv').click( function()
+    {
+        var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+        var nodes = zTree.getSelectedNodes();
+
+        $("#editor_para",parent.document.body).attr("value","mname="+currentSelectedTab+"&opt=edit&parentid="+nodes[0].id);
+        openBIEditor();
+    });
+    $('#deleteFileDiv').click( function()
+    {
+//        console.log("deleteFileDiv click selected item:"+currentSelectedFileItem);
+        if(currentSelectedFileItem == null || currentFileItems == null)
+        {
+            alert("请先选择要删除的文件或文件夹！");
+            return;
+        }
+        var obj;
+       for(var i=0;i<currentFileItems.length;i++)
+        {
+            if(currentFileItems[i]["id"] == currentSelectedFileItem["id"])
+            {
+                obj = currentFileItems[i];
+                break;
+            }
+        }
+        if(obj == null )
+        {
+            alert("请先选择要删除的文件或文件夹！");
+            return;
+        }
+        if(obj["type"] == "d" && obj["isEmpty"] == "false")
+        {
+            alert("请选择非空目录删除！");
+            return;
+        }
+        if(confirm("确认删除该文件或目录吗？"))
+        {
+
+            var jsondata = JSON.stringify([currentSelectedFileItem]);
+            remoteRPC.deleteItems(userID,currentSelectedTab, jsondata,function(result){
+//                alert("删除成功！");
+                if(result == true)
+                {
+                    var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+                    var selectedNode = zTree.getSelectedNodes()[0];
+                    remoteRPC.getFileList(userID,selectedNode.id,function(data){
+                        showFileList(data);
+                    });
+                }
+            });
+        }
+    });
+    $('#saveFileDiv').click( function()
+    {
+        var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+        var nodes = zTree.transformToArray(zTree.getNodes());
+        var postData = [];
+        var obj;
+//        var isEmpty = true;
+        for(var i=0;i<nodes.length;i++)
+        {
+            obj = nodes[i];
+//            isEmpty = true;
+//            if(obj["children"]!=undefined && obj["children"].length>0)
+//            {
+//                isEmpty = false;
+//            }
+            postData[i] = {id:obj["id"],pId:obj["pId"],name:obj["name"],open:obj["open"],isEmpty:obj["isEmpty"]};
+        }
+        var jsondata = encodeURI(JSON.stringify(postData));
+        remoteRPC.saveDirectories(userID,currentSelectedTab, jsondata,function(result){
+            if(result == "true")
+            {
+                alert("保存成功！");
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        //get userid from paren
+        userID = $('#id_user',parent.document.body).attr("value");
+
+
+
+        $('#verticalTab').easyResponsiveTabs({
+            type: 'vertical', //Types: default, vertical, accordion           
+            width: 'auto', //auto or any width like 600px
+            fit: true,   // 100% fit in a container
+            closed: 'accordion', // Start closed if in accordion view
+            activate: function (event) { // Callback function if tab is switched
+                if(this.id == "data")
+                {
+                    currentSelectedTab =  "tabData";
+
+                }else if(this.id == "design")
+                {
+                    currentSelectedTab =  "tabDesign";
+                }else
+                {
+                    currentSelectedTab =  "tabReport";
+                }
+                if(tabDataLoaded== false || tabDesignLoaded==false || tabReportLoaded== false)
+                {
+                    loadTabContent(currentSelectedTab);
+                    if(this.id == "data")
+                    {
+                        tabDataLoaded =  true;
+
+                    }else if(this.id == "design")
+                    {
+                        tabDesignLoaded =  true;
+                    }else
+                    {
+                        tabReportLoaded =  true;
+                    }
+                }else
+                {
+                    var zTree = $.fn.zTree.getZTreeObj(currentSelectedTab);
+
+                    var nodes =zTree.getSelectedNodes();
+                    if(nodes.length>0 && nodes[0] != undefined)
+                    {
+                        remoteRPC.getFileList(userID,nodes[0].id,function(result){
+                            showFileList(result);
+                        });
+
+                    }
+                }
+
+            }
+        });
+        var hash = window.location.hash;
+
+        if(hash == "#verticalTab2")
+        {
+            currentSelectedTab =  "tabDesign";
+            loadTabContent(currentSelectedTab);
+            tabDesignLoaded = true;
+        }else if(hash == "#verticalTab3")
+        {
+            currentSelectedTab =  "tabReport";
+            loadTabContent(currentSelectedTab);
+            tabReportLoaded = true;
+        }else
+        {
+            currentSelectedTab =  "tabData";
+            loadTabContent(currentSelectedTab);
+            tabDataLoaded = true;
+        }
+
+    });
+</script>
+</html>

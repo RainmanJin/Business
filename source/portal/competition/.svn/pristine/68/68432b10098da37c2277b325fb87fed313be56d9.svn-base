@@ -1,0 +1,104 @@
+<?php require(FILE_ROOT.'/views/view_header.php'); ?>
+
+<div id="standalone-signin">
+  <div class="validation-summary-valid" data-valmsg-summary="true">
+    <ul>
+      <li style="display:none; color:#fff">管理员账号：admin		&nbsp; 密码：12345678</li>
+    </ul>
+  </div>
+  <form action="https://www.kaggle.com/account/login" id="login-account" method="post">
+    <fieldset>
+      <div class="field">
+        <label>邮箱 / 用户名</label>
+        <!--<a href="http://www.kaggle.com/forgot/username" class="field-forgot-link" tabindex="4">忘记用户名？</a>-->
+        <input data-val="true" data-val-length="The field User name must be a string with a minimum length of 2 and a maximum length of 255." data-val-length-max="255" data-val-length-min="2" data-val-required="The User name field is required." id="email" name="email" tabindex="1" type="text" value="">
+        <span class="field-validation-valid" data-valmsg-for="UserName" data-valmsg-replace="true"></span> 
+      </div>
+        
+      <div class="field">
+        <label for="Password">密码</label>
+        <a href="javascript:;" class="field-forgot-link" tabindex="5">忘记密码？</a>
+        <input data-val="true" data-val-length="The field Password must be a string with a minimum length of 1 and a maximum length of 255." data-val-length-max="255" data-val-length-min="1" data-val-required="The Password field is required." id="passwd" name="passwd" tabindex="2" type="password">
+        <span class="field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span> 
+      </div>
+        
+      <div class="field">
+        <input id="get-started" type="submit" value="登录" tabindex="3" onclick="login();return false">
+        <input id="standalonesigninjs" type="hidden" name="JavaScriptEnabled" value="true">
+      </div>
+    </fieldset>
+  </form>
+  
+  <!--<script type="text/javascript">
+    $('#standalonesigninjs').attr('value', 'true');
+    $('#login-account').submit(function () { _gaq.push(['_trackEvent', 'action', 'login', 'standalone']); });
+</script>-->
+
+  <div id="login-page-signup" class="no-oauth">
+    <label><a href="<?php echo COMPETITION_INDEX; ?>/index.php?view=regist" tabindex="6">创建一个帐号 »</a></label>
+  </div>
+</div>
+
+<script type="text/javascript">
+function login(){
+	if(!$("#email").val()){
+		alert("请填写您的用户名或邮箱！");
+		//$("#email").attr('class','form-error');
+		return false;
+	}else{
+		//$("#email").attr('class','form-ok');
+	}
+	/*if($("#email").val().match(/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/)==null){
+		alert("邮箱格式不正确！");
+		//$("#email").attr('class','form-error');
+		return false;
+	}else{
+		//$("#email").attr('class','form-ok');
+	}*/
+	if(!$("#passwd").val()){
+		alert("请填写您的密码！");
+		//$("#passwd").attr('class','form-error');
+		return false;
+	}else{
+		//$("#passwd").attr('class','form-ok');
+	}
+	$.ajax({
+		url:$('#competition_index').val()+"/index.php?ajax=user&op=login&time="+ new Date().getTime(),
+		data:$("#login-account").serialize(),
+		type:'POST',
+		async:true,
+		beforeSend: function(){
+			pop_loading();
+		},
+		success: function(text){
+			pop_loading_close();
+			switch(parseInt(text)){
+				case 1:
+					alert("用户不存在！");
+					//$("#email").attr('class','form-error');
+					return false;
+				break;
+				
+				case 2:
+					alert("密码错误！");
+					//$("#passwd").attr('class','form-error');
+					return false;
+				break;
+				
+				default:
+					//$("#email").attr('class','form-ok');
+					//$("#passwd").attr('class','form-ok');
+					if($("#email").val()=='admin'){
+						window.location=$('#competition_index').val()+'/index.php?view=admin';
+					}else{
+						window.location=$('#competition_index').val()+'/index.php?view=my';
+					}
+				break;
+			}
+		}
+		
+	});
+}
+</script>
+
+<?php require(FILE_ROOT.'/views/view_footer.php'); ?>

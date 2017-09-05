@@ -1,0 +1,259 @@
+<?php
+//用户
+class User{
+	
+	public function __construct($item=false){
+		$this->item=$item;
+	}
+	
+	public function Init(){
+		//初始化用户
+		session_start();
+		if(isset($_COOKIE['id_user'])){
+			global $DB;
+			$_SESSION['user']=$DB->Get_arr("select * from "._DB_PREFIX_."users where id_user='".$_COOKIE['id_user']."'");
+		}
+	}
+	
+	####################
+	#注册登录
+	####################
+	
+	public function Login(){
+		//登录
+		global $DB;
+		$user=$DB->Get_arr("select * from "._DB_PREFIX_."users where email='".trim($this->item['email'])."'");
+		if(!$user){
+			echo 1;
+		}else{
+			if($user['password']!=md5(trim($this->item['passwd']))){
+				echo 2;
+			}else{
+				$_SESSION['user']=$user;
+				
+				if(isset($this->item['autologin'])){
+					setcookie("id_user",$user['id_user'],time()+3600*24*30,"/");
+				}
+			}
+		}
+		
+	}
+	public function Logout(){
+		//登出
+		setcookie("id_user",$_SESSION['user']['id_user'],time()-3600*24*30,"/");
+		session_unset();
+		session_destroy();
+		//header('location:'.MARKET_INDEX);
+		echo '<script>window.location="'.COMPETITION_INDEX.'"</script>';
+	}
+	
+	public function Regist(){
+		global $DB;
+		$name_user=$DB->Get_one("select name_user from "._DB_PREFIX_."users where name_user='".trim($this->item['UserName'])."'");
+		//注册
+		if(!$name_user){
+			
+			$email=$DB->Get_one("select email from "._DB_PREFIX_."users where email='".trim($this->item['Email'])."'");
+			if(!$email){
+				mysql_query("insert into "._DB_PREFIX_."users (email,  							name_user,  					display_name,  						legal_name, 			 password,  	regist_time) 
+												 values ( '".trim($this->item['Email'])."',	'".trim($this->item['UserName'])."',	'".trim($this->item['DisplayName'])."',	 '".trim($this->item['LegalName'])."',			'".md5(trim($this->item['Password']))."',   '".date('Y-m-d H:i:s',time())."'	)");
+				$_SESSION['user']=$DB->Get_arr("select * from "._DB_PREFIX_."users where id_user=".mysql_insert_id());
+			}else{
+				echo 2;
+			}
+		}else{
+			echo 1;
+		}
+	}
+	
+	public function Password(){
+		//找回密码
+		if($this->item['validate']==$_SESSION["autonum"]){
+			global $DB;
+			$email=$DB->Get_one("select email from "._DB_PREFIX_."users where email='".trim($this->item['email'])."'");
+			if(!$email){
+				echo 2;
+			}else{
+				include_once(FILE_ROOT.'/classes/class_general.php');
+				$General=new General();
+				if($General->Mail_smtp($email,'龙信数据——重置密码','重置密码')==""){ 
+					
+				}else{
+					
+				}
+			}
+		}else{
+			echo 1;
+		}
+		
+	}
+	
+	
+	####################
+	#我的专区
+	####################
+	
+	//账户详细
+	public function Detail(){
+		global $DB;
+		$detail=$DB->Get_arr('select id_country,address1,company,phone,phone_mobile from ps_address where id_user='.$_SESSION['user']['id_user']);
+		if($detail){
+			if(!$detail['id_country']){
+				$detail['country']='-';
+			}else{
+				$detail['country']=$detail['id_country'];
+			}
+			if(!$detail['address1']){
+				$detail['address']='-';
+			}else{
+				$detail['address']=$detail['address1'];
+			}
+			if(!$detail['company']){
+				$detail['company']='-';
+			}
+			if(!$detail['phone']){
+				$detail['phone']='-';
+			}
+			if(!$detail['phone_mobile']){
+				$detail['mobile']='-';
+			}else{
+				$detail['mobile']=$detail['phone_mobile'];
+			}
+		}else{
+			$detail=array('country'=>'-','address'=>'-','company'=>'-','phone'=>'-','mobile'=>'-');
+		}
+		return $detail;
+	}
+	//修改账户详细
+	public function Modify(){
+		
+	}
+	//修改密码
+	public function Passwd(){
+		
+	}
+	
+	
+	//判断是否已购买
+	public function Is_buyed($id_product){
+		$is_buyed=false;
+		if(isset($_SESSION['user'])){
+			global $DB;
+			$is_buyed=$DB->Get_one('select '._DB_PREFIX_.'order_detail.id_order 
+								   from '._DB_PREFIX_.'orders,'._DB_PREFIX_.'order_detail
+								   where '._DB_PREFIX_.'order_detail.product_id='.$id_product.' 
+								   and '._DB_PREFIX_.'orders.id_user='.$_SESSION['user']['id_user'].' 
+								   and '._DB_PREFIX_.'orders.id_order='._DB_PREFIX_.'order_detail.id_order');
+		}
+		return $is_buyed;
+	}
+	//获取订单列表
+	public function Order_list(){
+		global $DB;
+		
+		$products_list=array();
+		//初始化产品查询SQL语句
+		$products_query='select distinct '._DB_PREFIX_.'product.id_product,	'._DB_PREFIX_.'product.date_add,	'._DB_PREFIX_.'product_lang.name,	'._DB_PREFIX_.'product_lang.description		,'._DB_PREFIX_.'order_detail.id_order                                                              
+		from '._DB_PREFIX_.'product,'._DB_PREFIX_.'product_lang,'._DB_PREFIX_.'orders,'._DB_PREFIX_.'order_detail
+		where '._DB_PREFIX_.'product.id_product='._DB_PREFIX_.'product_lang.id_product 
+		and '._DB_PREFIX_.'product.id_product='._DB_PREFIX_.'order_detail.product_id
+		and '._DB_PREFIX_.'orders.id_user='.$_SESSION['user']['id_user'];
+		
+		
+		$products=mysql_query($products_query);
+		while($product=mysql_fetch_assoc($products)){
+			if(!$product['description']){
+				$product['description']='暂无任何描述';
+			}
+			
+			//图片
+			$id_image=$DB->Get_one('select id_image from '._DB_PREFIX_.'image where id_product='.$product['id_product']);
+			if($id_image){
+				$image_arr=str_split($id_image);
+				$product['image']=MARKET_INDEX.'/img/p/'.$image_arr[0].'/'.$image_arr[1].'/'.$id_image.'.jpg';
+			}else{
+				$product['image']=LINK_ROOT.'/images/num_11.jpg';
+			}
+			$products_list[]=$product;
+		}
+		return $products_list;
+	}
+	//退订
+	public function Order_del(){
+		mysql_query('delete from '._DB_PREFIX_.'orders where '._DB_PREFIX_.'orders.id_order='.$this->item['id_order']);
+		mysql_query('delete from '._DB_PREFIX_.'order_detail where  '._DB_PREFIX_.'order_detail.id_order='.$this->item['id_order']);
+	}
+	
+	//获取在售列表
+	public function Sell_list(){
+		global $DB;
+		$company=$DB->Get_one('select company from ps_address where id_user='.$_SESSION['user']['id_user']);
+
+		$products_list=array();
+		//初始化产品查询SQL语句
+		$products_query='select distinct 	'._DB_PREFIX_.'product.id_product,		'._DB_PREFIX_.'product.date_add,		'._DB_PREFIX_.'product_lang.name,		'._DB_PREFIX_.'product_lang.description                                                              
+		from '._DB_PREFIX_.'product
+		left join '._DB_PREFIX_.'manufacturer on 	'._DB_PREFIX_.'product.id_manufacturer='._DB_PREFIX_.'manufacturer.id_manufacturer
+		,'._DB_PREFIX_.'product_lang 
+		where '._DB_PREFIX_.'product.id_product='._DB_PREFIX_.'product_lang.id_product
+		and '._DB_PREFIX_.'manufacturer.name="'.$company.'" ';
+		
+		$products=mysql_query($products_query);
+		while($product=mysql_fetch_assoc($products)){
+			if(!$product['description']){
+				$product['description']='暂无任何描述';
+			}
+			
+			//图片
+			$id_image=$DB->Get_one('select id_image from '._DB_PREFIX_.'image where id_product='.$product['id_product']);
+			if($id_image){
+				$image_arr=str_split($id_image);
+				$product['image']=MARKET_INDEX.'/img/p/'.$image_arr[0].'/'.$image_arr[1].'/'.$id_image.'.jpg';
+			}else{
+				$product['image']=LINK_ROOT.'/images/num_11.jpg';
+			}
+			$products_list[]=$product;
+		}
+		
+		return $products_list;
+	}
+	
+	//获取收藏列表
+	public function Favorate_list(){
+		global $DB;
+		//产品列表
+		$products_list=array();
+		//初始化产品查询SQL语句
+		$products_query='select distinct '._DB_PREFIX_.'product.id_product,	'._DB_PREFIX_.'product.date_add,	'._DB_PREFIX_.'product_lang.name,	'._DB_PREFIX_.'product_lang.description                                                              
+		from '._DB_PREFIX_.'product,'._DB_PREFIX_.'product_lang,'._DB_PREFIX_.'favorite_product
+		where '._DB_PREFIX_.'product.id_product='._DB_PREFIX_.'product_lang.id_product 
+		and '._DB_PREFIX_.'product.id_product='._DB_PREFIX_.'favorite_product.id_product
+		and '._DB_PREFIX_.'favorite_product.id_user='.$_SESSION['user']['id_user'];
+		
+		
+		$products=mysql_query($products_query);
+		while($product=mysql_fetch_assoc($products)){
+			if(!$product['description']){
+				$product['description']='暂无任何描述';
+			}
+			
+			//图片
+			$id_image=$DB->Get_one('select id_image from '._DB_PREFIX_.'image where id_product='.$product['id_product']);
+			if($id_image){
+				$image_arr=str_split($id_image);
+				$product['image']=MARKET_INDEX.'/img/p/'.$image_arr[0].'/'.$image_arr[1].'/'.$id_image.'.jpg';
+			}else{
+				$product['image']=LINK_ROOT.'/images/num_11.jpg';
+			}
+			$products_list[]=$product;
+		}
+		return $products_list;
+	}
+	//取消收藏
+	public function Favorate_del(){
+		mysql_query('delete from '._DB_PREFIX_.'favorite_product where id_product='.$this->item['id_product'].' and id_user='.$_SESSION['user']['id_user']);
+	}
+	
+	
+}
+?>

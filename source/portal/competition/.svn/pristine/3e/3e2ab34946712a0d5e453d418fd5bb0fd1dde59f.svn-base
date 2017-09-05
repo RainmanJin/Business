@@ -1,0 +1,184 @@
+<?php
+//用户
+class User{
+	
+	public function __construct($item=false){
+		$this->item=$item;
+	}
+	
+	//初始化用户
+	public function Init(){
+		session_start();
+		if(isset($_COOKIE['id_user'])&&!isset($_SESSION['user'])){
+			global $DB;
+			$_SESSION['user']=$DB->Get_arr("select * from "._DB_PREFIX_."users where id_user='".$_COOKIE['id_user']."'");
+		}
+	}
+	
+####################
+#注册登录
+####################
+	
+	public function Login(){
+		//登录
+		global $DB;
+		$user=$DB->Get_arr("select * from "._DB_PREFIX_."users where email='".trim($this->item['email'])."' or name_user='".trim($this->item['email'])."'");
+		if(!$user){
+			echo 1;
+		}else{
+			if($user['password']!=md5(trim($this->item['passwd']))){
+				echo 2;
+			}else{
+				$_SESSION['user']=$user;
+				
+				if(isset($this->item['autologin'])){
+					setcookie("id_user",$user['id_user'],time()+3600*24*30,"/");
+				}
+			}
+		}
+		
+	}
+	public function Logout(){
+		//登出
+		setcookie("id_user",0,time()-3600*24*30,"/");
+		session_unset();
+		session_destroy();
+		echo '<script>window.location="'.COMPETITION_INDEX.'"</script>';
+	}
+	
+	public function Regist(){
+		global $DB;
+		$name_user=$DB->Get_one("select name_user from "._DB_PREFIX_."users where name_user='".trim($this->item['UserName'])."'");
+		//注册
+		if(!$name_user){
+			
+			$email=$DB->Get_one("select email from "._DB_PREFIX_."users where email='".trim($this->item['Email'])."'");
+			if(!$email){
+				mysql_query("insert into "._DB_PREFIX_."users (email,  							name_user,  					display_name,  						legal_name, 			 password,  	regist_time) 
+												 values ( '".trim($this->item['Email'])."',	'".trim($this->item['UserName'])."',	'".trim($this->item['DisplayName'])."',	 '".trim($this->item['LegalName'])."',			'".md5(trim($this->item['Password']))."',   '".date('Y-m-d H:i:s',time())."'	)");
+				$_SESSION['user']=$DB->Get_arr("select * from "._DB_PREFIX_."users where id_user=".mysql_insert_id());
+			}else{
+				echo 2;
+			}
+		}else{
+			echo 1;
+		}
+	}
+	
+	/*public function Password(){
+		//找回密码
+		if($this->item['validate']==$_SESSION["autonum"]){
+			global $DB;
+			$email=$DB->Get_one("select email from "._DB_PREFIX_."users where email='".trim($this->item['email'])."'");
+			if(!$email){
+				echo 2;
+			}else{
+				include_once(FILE_ROOT.'/classes/class_general.php');
+				$General=new General();
+				if($General->Mail_smtp($email,'龙信数据——重置密码','重置密码')==""){ 
+					
+				}else{
+					
+				}
+			}
+		}else{
+			echo 1;
+		}
+		
+	}*/
+	
+	
+####################
+#我的专区
+####################
+
+	public function User_detail($get){
+		global $DB;
+		
+		if(isset($get['id_user'])){
+			$user=$DB->Get_arr('select * from '._DB_PREFIX_.'users where id_user='.$get['id_user']);
+		}else{
+			$user=$_SESSION['user'];
+		}
+		
+		//图片
+		if(file_exists(FILE_ROOT.USER_IMG.$user['id_user'].'.jpg')){
+			$user['image']=LINK_ROOT.USER_IMG.$user['id_user'].'.jpg';
+		}else{
+			$user['image']=LINK_ROOT.'/images/default.png';
+		}
+		
+		//加入天数
+		$user['togo']=DateLen($user['regist_time'],'history');
+		
+		//接受列表
+		$user['result']=array();
+		$results=mysql_query('select '._DB_PREFIX_.'competitions.id_competition,	'._DB_PREFIX_.'competitions.name_competition,	'._DB_PREFIX_.'competitions.end_time 
+							 from '._DB_PREFIX_.'competitions,	'._DB_PREFIX_.'acceptions 
+							 where '._DB_PREFIX_.'competitions.id_competition='._DB_PREFIX_.'acceptions.id_competition 
+							 and '._DB_PREFIX_.'acceptions.id_user='.$user['id_user']);
+		while($result=mysql_fetch_assoc($results)){
+			//图片
+			if(file_exists(FILE_ROOT.COM_IMG.$result['id_competition'].'.jpg')){
+				$result['image']=LINK_ROOT.COM_IMG.$result['id_competition'].'.jpg';
+			}else{
+				$result['image']=LINK_ROOT.'/images/num_10.jpg';
+			}
+			$result['my_entries']=$DB->Get_one('select count(*) from '._DB_PREFIX_.'submissions where id_competition='.$result['id_competition'].' and id_user='.$user['id_user']);
+			$result['entries']=$DB->Get_one('select count(*) from '._DB_PREFIX_.'submissions where id_competition='.$result['id_competition']);
+			$result['deadline']=DateLen($result['end_time'],'future');
+			$user['result'][]=$result;
+		}
+		
+		return $user;
+	}
+	
+	//头像上传
+	public function User_image($file=false){
+		//验证扩展名
+		$extension_arr=array('jpg','jpeg','png','gif');
+		$filename_arr=pathinfo($file['Filedata']["name"]);
+		if(!in_array($filename_arr['extension'],$extension_arr)){
+			echo '扩展名不能为'.$filename_arr['extension'].'，应该为'.join(',',$extension_arr);
+			exit;
+		}
+		//$file['Filedata']["name"]
+		//$tmp_name=md5(rand(0,10000)).'.'.$filename_arr['extension'];
+		//$filepath=FILE_ROOT.TMP_IMG.$file['Filedata']["name"];
+		if(!file_exists(FILE_ROOT.TMP_IMG.'/'.$_SESSION['user']['id_user'].'/')){
+			mkdir(FILE_ROOT.TMP_IMG.'/'.$_SESSION['user']['id_user'].'/');
+			exec('export LANG=C; /usr/bin/sudo chmod 777 '.FILE_ROOT.TMP_IMG.'/'.$_SESSION['user']['id_user'].'/');
+		}
+		move_uploaded_file($file['Filedata']["tmp_name"],FILE_ROOT.TMP_IMG.'/'.$_SESSION['user']['id_user'].'/'.$file['Filedata']["name"]);
+		echo LINK_ROOT.TMP_IMG.'/'.$_SESSION['user']['id_user'].'/'.$file['Filedata']["name"];
+	}
+	
+	//编辑总览
+	public function Profile_edit(){
+		//图像裁剪
+		$input=FILE_ROOT.TMP_IMG.$_SESSION['user']['id_user'].'/';
+		$output=FILE_ROOT.USER_IMG;
+		
+		include_once(FILE_ROOT.'/classes/class_general.php');
+		$General=new General();
+		$General->ImageCrop($this->item['name_image'],$_SESSION['user']['id_user'],$input,$output,$this->item['x'],$this->item['y'],$this->item['w'],$this->item['h']);
+		
+		//修改总览
+		mysql_query('update '._DB_PREFIX_.'users set bio="'.trim($this->item['bio']).'",skill="'.trim($this->item['skill']).'" where id_user='.$_SESSION['user']['id_user']);
+		$_SESSION['user']['bio']=$this->item['bio'];
+		$_SESSION['user']['skill']=$this->item['skill'];
+	}
+	//修改帐号
+	public function Account_edit(){
+		mysql_query('update '._DB_PREFIX_.'users set display_name="'.trim($this->item['display_name']).'",legal_name="'.trim($this->item['legal_name']).'" where id_user='.$_SESSION['user']['id_user']);
+		$_SESSION['user']['display_name']=$this->item['display_name'];
+		$_SESSION['user']['legal_name']=$this->item['legal_name'];
+	}
+	//修改密码
+	public function Password_edit(){
+		mysql_query('update '._DB_PREFIX_.'users set password="'.md5(trim($this->item['passwd'])).'" where id_user='.$_SESSION['user']['id_user']);
+		$_SESSION['user']['password']=$this->item['passwd'];
+	}
+	
+}
+?>

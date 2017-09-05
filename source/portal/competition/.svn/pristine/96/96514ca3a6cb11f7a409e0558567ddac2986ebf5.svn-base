@@ -1,0 +1,81 @@
+<?php
+require_once(FILE_ROOT.'/classes/class_competition.php');
+$Competition=new Competition($_GET);
+$competition=$Competition->Detail();
+
+$title='规则';
+?>
+<?php require(FILE_ROOT.'/views/view_header.php'); ?>
+
+<div id="wrap">
+  <div id="main">
+    <div id="competition">
+    
+      <?php require(FILE_ROOT.'/views/view_competition_header.php'); ?>
+      <?php require(FILE_ROOT.'/views/view_competition_left.php'); ?>
+      
+      <!--中间-->
+      <div class="description comp-content with-sidebar _panel">
+		<?php require(FILE_ROOT.'/views/view_competition_title.php'); ?>
+        
+        <div class="comp-content-inside">
+          <div id="competition-intro"> </div>
+          <div id="comp-homepage-content" class="cms-page _buttons">
+            <h1 class="page-name">竞赛规则</h1>
+            
+            <?php echo $competition['rule']; ?>
+            
+            <?php
+			if(isset($_GET['confirm'])&&!$competition['choose']){
+			?>
+                <div class="_buttons" style="margin-top:3em;">
+                  <h2 style="margin-bottom:1em;">规则确认</h2>
+                  <form action="" method="post">
+                    <input type="submit" name="doAccept" value="我明白并接受" onclick="acception('<?php echo $_SESSION['user']['team']; ?>',<?php echo $_SESSION['user']['is_leader']; ?>);return false" />
+                    <input type="submit" id="do-not-accept" name="doNotAccept" value="我不接受" onclick="window.location='<?php echo COMPETITION_INDEX; ?>/index.php?view=competition&id_competition=<?php echo $competition['id_competition']; ?>';return false" />
+                    <p><small>当你点击“我明白并接受”的按钮后，表示你同意并有义务遵守该规则。</small></p>
+                  </form>
+                </div>
+            <?php
+			}
+			?>
+          </div>
+        </div>
+        
+        
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+function acception(team,is_leader){
+	id_competition=url_get('id_competition');
+	$.ajax({
+		url:$('#competition_index').val()+"/index.php?ajax=competition&op=accept&time="+ new Date().getTime(),
+		data:'id_competition='+id_competition,
+		type:'POST',
+		async:true,
+		beforeSend: function(){
+			pop_loading();
+		},
+		success: function(text){
+			pop_loading_close();
+			if(team){
+				if(is_leader){
+					window.location=$('#competition_index').val()+'/index.php?view=competition_submission&id_competition='+id_competition;
+				}else{
+					window.location=$('#competition_index').val()+'/index.php?view=competition_team&id_competition='+id_competition+'&team=1';
+				}
+			}else{
+				window.location=$('#competition_index').val()+'/index.php?view=competition_subchoose&id_competition='+id_competition+'&id_acception='+text;
+			}
+		}
+		
+	});
+}
+</script>
+
+
+<?php require(FILE_ROOT.'/views/view_footer.php'); ?>

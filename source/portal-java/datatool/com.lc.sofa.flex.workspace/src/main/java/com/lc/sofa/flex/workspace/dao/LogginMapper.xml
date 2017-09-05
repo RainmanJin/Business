@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lc.sofa.flex.workspace.dao.LogginMapper">
+	<resultMap id="sofaBIUserInfoResult" type="com.lc.sofa.flex.workspace.vo.SofaBIUserInfo">
+		<result column="id" property="id" />
+		<result column="userName" property="userName" />
+		<result column="password" property="password" />
+		<result column="email" property="email" />
+		<result column="nickName" property="nickName" />
+		<result column="realName" property="realName" />
+		<result column="signTime" property="signTime" />
+	</resultMap>
+
+	<select id="selectUserInfoById" parameterType="map"
+		resultMap="sofaBIUserInfoResult">
+		select id , username
+		,password,email,nickName,realName,signTime
+		from sofa.SOFA_BI_USER t
+		where t.id = #{id}
+	</select>
+	<select id="selectUserInfoByName" parameterType="map"
+		resultMap="sofaBIUserInfoResult">
+		select id , username
+		,password,email,nickName,realName,signTime
+		from sofa.SOFA_BI_USER t
+		where t.userName = #{userName}
+	</select>
+	<select id="selectUserInfoByEmail" parameterType="map"
+		resultMap="sofaBIUserInfoResult">
+		select id , username
+		,password,email,nickName,realName,signTime
+		from
+		sofa.SOFA_BI_USER t
+		where t.email = #{email}
+	</select>
+	<select id="selectSofaBIUserNamePassword" parameterType="map"
+		resultMap="sofaBIUserInfoResult">
+		select id , username
+		,password,email,nickName,realName,signTime
+		from
+		sofa.SOFA_BI_USER t
+		where t.password = #{password} and t.userName = #{userName}
+	</select>
+	<select id="selectSofaBIUserEmailPassword" parameterType="map"
+		resultMap="sofaBIUserInfoResult">
+		select id , username
+		,password,email,nickName,realName,signTime
+		from
+		sofa.SOFA_BI_USER t
+		where t.password = #{password} and t.email = #{userName}
+	</select>
+
+
+
+	<insert id="insertUserInfo" parameterType="com.lc.sofa.flex.workspace.vo.SofaBIUserInfo">
+		insert into
+		sofa.SOFA_BI_USER
+		(id,username,password,email,nickName,realName,signTime)
+		values
+		(#{id},#{userName},#{password},#{email},#{nickName},#{realName},sysdate)
+	</insert>
+
+	<delete id="deleteUserInfo" parameterType="java.lang.String">
+		delete from
+		sofa.SOFA_BI_USER
+		where id=#{id}
+	</delete>
+
+	<update id="updateUserInfo" parameterType="com.lc.sofa.flex.workspace.vo.SofaBIUserInfo">
+		update sofa.SOFA_BI_USER
+		<set>
+			username =
+			#{userName,jdbcType=INTEGER} ,
+			password =
+			#{password,jdbcType=VARCHAR},
+			email = #{email,jdbcType=VARCHAR} ,
+			nickName =
+			#{nickName,jdbcType=VARCHAR} ,
+			realname =
+			#{realName,jdbcType=VARCHAR}
+		</set>
+		where id = #{id}
+	</update>
+
+</mapper>

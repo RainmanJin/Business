@@ -1,0 +1,31 @@
+<?php 
+
+?>
+
+<div class="my_left">
+  <div class="accordion">
+    <h3>竞赛管理</h3>
+    <div class="actived">
+      <p><a href="<?php echo COMPETITION_INDEX; ?>/index.php?view=admin" <?php if($_GET['view']=='admin'){ ?>style="color:#43b8f0;font-weight:bold;"<?php } ?> >竞赛列表</a></p>
+      <!--<p><a href="<?php echo MARKET_INDEX; ?>/index.php?view=my_order" <?php if($_GET['view']=='my_order'){ ?>style="color:#43b8f0;font-weight:bold;"<?php } ?> >添加竞赛</a></p>
+      <p><a href="<?php echo MARKET_INDEX; ?>/index.php?view=my_sell" <?php if($_GET['view']=='my_sell'){ ?>style="color:#43b8f0;font-weight:bold;"<?php } ?> >在售产品</a></p>
+      <p><a href="<?php echo MARKET_INDEX; ?>/index.php?view=my_favorite" <?php if($_GET['view']=='my_favorite'){ ?>style="color:#43b8f0;font-weight:bold;"<?php } ?> >产品收藏</a></p>-->
+    </div>
+  </div>
+  
+  <div class="accordion">
+    <h3>用户管理</h3>
+    <div class="actived">
+      <p><a href="javascript:;">用户列表</a></p>
+      <!--<p><a href="javascript:;">已发话题</a></p>
+      <p><a href="javascript:;">已答话题</a></p>
+      <p><a href="javascript:;">知识收藏</a></p>-->
+    </div>
+  </div>
+</div>
+  
+<script type="text/javascript">
+$(document).ready(function(){
+						   
+});
+</script>

@@ -1,0 +1,36 @@
+<?php
+//用户
+
+switch($_GET['op']){
+	
+	case 'login':
+	$User->Login();
+	break;
+	
+	case 'logout':
+	$User->Logout();
+	break;
+	
+	case 'regist':
+	$User->Regist();
+	break;
+	
+	
+	case 'password':
+	$User->Password();
+	break;
+	
+	
+	case 'order_del':
+	$User->Order_del();
+	break;
+	
+	case 'favorate_del':
+	$User->Favorate_del();
+	break;
+
+	default:
+	break;
+}
+
+?>

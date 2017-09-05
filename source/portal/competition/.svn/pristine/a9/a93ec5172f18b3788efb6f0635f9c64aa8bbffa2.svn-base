@@ -1,0 +1,39 @@
+@charset "utf-8";
+/* CSS Document */
+
+.my_left{
+	float:left; 
+	width:12%;
+	/*margin-bottom:30px;
+	margin-top:57px;*/
+}
+.actived{
+	padding:20px;
+	line-height:30px; 
+	text-align:center
+}
+.my_right{
+	float:right;
+	width:87%;
+	/*margin-left:10px; */
+	line-height:30px;
+	padding-top:5px;
+}
+.my_right h2{
+	border-bottom:1px solid #ccc;
+	padding-bottom:10px;
+	margin-bottom:10px;
+}
+.my_table thead th{
+	background:#43b8f0;
+	color:#fff;
+	/*border-top-right-radius: 5px;
+	border-top-left-radius: 5px;*/
+}
+.my_table thead th a{
+	color:#fff;
+}
+.my_table td{
+	border:1px solid #ccc;
+	text-align:center;
+}

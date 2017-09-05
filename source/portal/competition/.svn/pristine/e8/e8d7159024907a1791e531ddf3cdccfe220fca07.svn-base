@@ -1,0 +1,91 @@
+<?php
+//产品
+require_once(FILE_ROOT.'/classes/class_competition.php');
+$Competition=new Competition($_POST);
+
+switch($_GET['op']){
+	case 'all':
+	$Competition->All();
+	break;
+	
+	case 'accept':
+	$Competition->Accept();
+	break;
+	
+	case 'choose':
+	$Competition->Choose();
+	break;
+	
+	case 'submission':
+	$Competition->Submission($_GET,$_FILES);
+	break;
+	
+	case 'subchecked':
+	$Competition->Sub_checked();
+	break;
+	
+	/*case 'upload':
+	$Competition->Upload($_GET,$_FILES);
+	break;*/
+	
+	case 'team_creat':
+	$Competition->Team_creat();
+	break;
+	
+	case 'team_save':
+	$Competition->Team_save();
+	break;
+	
+	case 'team_leader':
+	$Competition->Team_leader();
+	break;
+	
+	case 'team_invite':
+	$Competition->Team_invite();
+	break;
+	
+	case 'team_accept':
+	$Competition->Team_accept($_GET);
+	break;
+	
+	case 'team_disband':
+	$Competition->Team_disband();
+	break;
+	
+	######
+	#admin
+	######
+	
+	case 'manage_competition':
+	$Competition->Manage_competition();
+	break;
+	
+	case 'manage_set':
+	$Competition->Manage_set();
+	break;
+	
+	case 'manage_del':
+	$Competition->Manage_del();
+	break;
+	
+	case 'manage_data':
+	$Competition->Manage_data($_FILES);
+	break;
+	
+	case 'manage_data_del':
+	$Competition->Manage_data_del();
+	break;
+	
+	case 'manage_submission':
+	$Competition->Manage_submission();
+	break;
+
+	case 'manage_score':
+	$Competition->Manage_score();
+	break;
+
+	
+	default:
+	break;
+}
+?>

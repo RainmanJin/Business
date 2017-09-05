@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE install PUBLIC "-//Joomla! 2.5//DTD template 1.0//EN" "http://www.joomla.org/xml/dtd/1.6/template-install.dtd">
+<extension version="3.1" type="template" client="site">
+	<name>longtmp</name>
+	<creationDate>2014-9-9</creationDate>
+	<author>lipeixin</author>
+	<authorEmail>lipeixin@safe.longcredit.com</authorEmail>
+	<authorUrl>http://www.longcredit.com</authorUrl>
+	<copyright>Copyright (C) 2014 - 2015 longcredit .</copyright>
+	<license>longcredit license</license>
+	<version>3.1.0</version>
+	<description>大数据云平台模版</description>
+
+	<files>
+		<folder>css</folder>
+		<folder>html</folder>
+		<folder>images</folder>
+		<folder>js</folder>
+		<folder>language</folder>
+		<filename>index.php</filename>
+		<filename>templateDetails.xml</filename>
+		<filename>template_preview.png</filename>
+		<filename>template_thumbnail.png</filename>
+		<filename>favicon.ico</filename>
+	</files>
+
+	<positions>
+	
+	</positions>
+
+	<languages folder="language">
+	
+	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="advanced">
+
+			</fieldset>
+		</fields>
+	</config>
+</extension>

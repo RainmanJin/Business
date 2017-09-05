@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="jquery-1.10.2.js" type="text/javascript"></script>
+</head>
+<body>
+	<button id="button1">测试getDirectories</button>
+	<button id="button2">测试saveDirectories</button>
+	<button id="button3">测试getFileList</button>
+	<script type="text/javascript">
+		$("#button1").click(function() {
+			alert("点击测试getDirectories");
+			$.ajax({
+						type : "POST",
+						url : "http://172.16.252.80:8088/sofa/flex-workspace/workspace.ctrl?method=getDirectories",
+						data : "userid=John&modelname=Boston",
+						dataType : 'json',
+						success : function(msg) {
+							alert("get: " + msg);
+						},
+						error : function(msg) {
+							alert("error " + msg);
+						}
+					});
+		});
+		$("#button2").click(function() {
+			alert("点击测试saveDirectories");
+			$.ajax({
+						type : "POST",
+						url : "http://172.16.252.80:8088/sofa/flex-workspace/workspace.ctrl?method=saveDirectories",
+						data : "json=asdfasfasd",
+						dataType : 'Boolean',
+						success : function(msg) {
+							alert("Data Saved: " + msg);
+						},
+						error : function(msg) {
+							alert("error " + msg);
+						}
+					});
+		});
+		$("#button3").click(function() {
+			alert("点击测试getFileList");
+			$.ajax({
+						type : "POST",
+						url : "http://172.16.252.80:8088/sofa/flex-workspace/workspace.ctrl?method=getFileList",
+						data : "userid=John&directoryid=Boston",
+						dataType : 'json',
+						success : function(msg) {
+							alert("getFileList: " + msg);
+						},
+						error : function(msg) {
+							alert("error " + msg);
+						}
+					});
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<?php
+if(!isset($_SESSION['user'])){
+	header('location:'.UNITY_INDEX.'/index.php?view=login&site=competition');
+}
+if($_SESSION['user']['id_user']!=1){
+	echo '您没有权限访问';
+	exit;
+}
+
+$user_list=$User->User_manage($_GET);
+
+$title='用户列表';
+?>
+
+<?php require(FILE_ROOT.'/views/view_header.php'); ?>
+
+<link rel="stylesheet" href="<?php echo LINK_ROOT; ?>/css/admin.css" type="text/css" />
+<div class="Main">
+
+  <?php require(FILE_ROOT.'/views/view_admin_left.php'); ?>
+  
+  <div class="my_right">
+    <h2>
+	  <a href="<?php echo COMPETITION_INDEX;?>/index.php?view=admin_user" style="font-size:20px"><?php echo $title ?></a>&nbsp;
+      <button class="script" onClick="pts_rank()">清算</button>&nbsp;
+      <a href="javascript:;" onclick="$('#pts_rank_help').dialog('open')" title="帮助"><img src="<?php echo LINK_ROOT; ?>/images/leaderboard-help-icon.png" /></a>
+      
+      <form id="form_search" style="float:right;">
+		<!--<input type="text" class="autocomplete"  placeholder="已结束的竞赛" style="height:35px"  />
+        <button type="submit" class="arrow" style="padding:6px" onclick="return(show_auto());return false"></button>-->  
+        <select onchange="complete_list(this)" style="font-size:16px">
+        <?php
+		$complete_list=$User->Complete_list();
+		if($complete_list){
+			?>
+            <option value="">已结束竞赛</option>
+            <?php
+			foreach($complete_list as $complete){
+				?>
+				<option value="<?php echo $complete['id_competition']; ?>" <?php if(isset($_GET['cl'])&&$_GET['cl']==$complete['id_competition']){echo 'selected';} ?>>
+				  <?php echo $complete['name_competition']; ?>
+                </option>
+				<?php
+			}
+		}else{
+			?>
+            <option value="">暂无任何已完成的竞赛</option>
+            <?php
+		}
+		?>
+        </select>    
+      
+        <input type="text" id="keyword" value="<?php if(isset($_GET['kw'])){echo $_GET['kw'];} ?>" placeholder="用户昵称/团队关键字" style="height:35px" />
+        <button type="submit" class="keyword_search" onclick="keyword_search();return false" style="font-size:18px">搜索</button>
+      </form>
+      <!--<div style="clear:both"></div>-->
+    </h2>
+    
+    <form id="form_user">
+    <table border="0" width="99%" cellpadding="5" cellspacing="2" class="my_table">
+      <thead>
+        <tr>
+          <?php
+		  if(isset($_GET['st'])){
+			 $od=explode('_',$_GET['st'])[0]; 
+			 $by=explode('_',$_GET['st'])[1]; 
+		  }else{
+			 $od='id';
+			 $by='asc';
+		  }
+		  $asc='<img src="'.LINK_ROOT.'/images/sort-ascending.png" />';
+		  $desc='<img src="'.LINK_ROOT.'/images/sort-descending.png" />';
+		  $not='<img src="'.LINK_ROOT.'/images/sort-not-sorted.png" />';
+		  ?>
+          <th width="30"><input type="checkbox" onclick="check_all(this,'.user_check')" checked="checked" /></th>
+          <th width="30"><a href="javascript:;" onclick="list_sort('id','desc')">ID&nbsp;<?php if($od=='id'){if($by=='asc'){echo $asc; }else{echo $desc;}}else{echo $not;} ?></a></th>
+          <th width="60">头像</th>
+          <th width=""><a href="javascript:;" onclick="list_sort('name','desc')">昵称&nbsp;<?php if($od=='name'){if($by=='asc'){echo $asc; }else{echo $desc;}}else{echo $not;} ?></a><!--</th>-->
+          <!--<th width="">--><a href="javascript:;" onclick="list_sort('team','desc')">团队&nbsp;<?php if($od=='team'){if($by=='asc'){echo $asc; }else{echo $desc;}}else{echo $not;} ?></a></th>
+          <!--<th width=""><a href="javascript:;" onclick="list_sort('sub','desc')">竞赛&nbsp;<?php if($od=='sub'){if($by=='asc'){echo $asc; }else{echo $desc;}}else{echo $not;} ?></a></th>-->
+          <th width="120"><a href="javascript:;" onclick="list_sort('pts','asc')">积分&nbsp;<?php if($od=='pts'){if($by=='asc'){echo $asc; }else{echo $desc;}}else{echo $not;} ?></a></th>
+          <th width="120"><a href="javascript:;" onclick="list_sort('rank','asc')">等级&nbsp;<?php if($od=='rank'){if($by=='asc'){echo $asc; }else{echo $desc;}}else{echo $not;} ?></a></th>
+          <th width="120"><a href="javascript:;" onclick="list_sort('active','desc')">激活&nbsp;<?php if($od=='active'){if($by=='asc'){echo $asc; }else{echo $desc;}}else{echo $not;} ?></a></th>
+          <th width="140"><a href="javascript:;" onclick="list_sort('time','desc')">注册时间&nbsp;<?php if($od=='time'){if($by=='asc'){echo $asc; }else{echo $desc;}}else{echo $not;} ?></a></th>
+          <!--<th width="80">操作</th>-->
+        </tr>
+      </thead>
+      <tbody>
+      <?php
+	  if(count($user_list)>0){
+		  foreach($user_list as $user){
+		  ?>
+          <tr onmousemove="move_color(this)" onmouseout="out_color(this)">
+            <td><input type="checkbox" class="user_check" id="check_<?php echo $user['id_user']; ?>" <?php if($user['m_pts']==1&&$user['m_rank']==1){echo 'disabled';}else{echo 'checked';} ?> value="<?php echo $user['id_user']; ?>" /></td>
+            
+            <td><?php echo $user['id_user']; ?></td>
+            
+            <td>
+              <a href="<?php echo COMPETITION_INDEX; ?>/index.php?view=my&id_user=<?php echo $user['id_user']; ?>" target="_blank">
+                <img src="<?php echo $user['image']; ?>" width="50" height="50" />
+              </a>
+            </td>
+              
+            <td style="text-align:left; vertical-align:top">
+              <strong>昵称：</strong>
+              <a href="<?php echo COMPETITION_INDEX; ?>/index.php?view=my&id_user=<?php echo $user['id_user']; ?>" target="_blank">
+				<?php echo $user['display_name']; ?>
+              </a><br />
+            <!--</td>-->
+            <!--<td>--><?php if($user['team']){ ?><strong>团队：</strong><?php echo $user['team'];} ?></td>
+            
+            <!--<td><?php echo $user['sub']; ?>&nbsp;<a href="javascript:;" onclick="user_sub()">查看</a></td>-->
+            
+            <!--积分-->
+            <td>
+              手动：<input type="radio" name="pts_<?php echo $user['id_user']; ?>" <?php if($user['m_pts']==1){echo 'checked';} ?> onclick="manual('pts',<?php echo $user['id_user']; ?>,'m')" />&nbsp;
+              自动：<input type="radio" name="pts_<?php echo $user['id_user']; ?>" <?php if($user['m_pts']!=1){echo 'checked';} ?> onclick="manual('pts',<?php echo $user['id_user']; ?>,'a')" /><br />
+              <span class="pts_<?php echo $user['id_user']; ?>">
+                <input type="text" id="pts_<?php echo $user['id_user']; ?>" value="<?php echo $user['pts']; ?>" size="10" <?php if($user['m_pts']!=1){echo 'disabled';} ?> />
+                <button <?php if($user['m_pts']!=1){echo 'disabled';} ?> onclick="save('pts',<?php echo $user['id_user']; ?>);return false">保存</button>
+              </span>
+            </td>
+            
+            <!--等级-->
+            <td>
+              手动：<input type="radio" name="rank_<?php echo $user['id_user']; ?>" <?php if($user['m_rank']==1){echo 'checked';} ?> onclick="manual('rank',<?php echo $user['id_user']; ?>,'m')" />&nbsp;
+              自动：<input type="radio" name="rank_<?php echo $user['id_user']; ?>" <?php if($user['m_rank']!=1){echo 'checked';} ?> onclick="manual('rank',<?php echo $user['id_user']; ?>,'a')" /><br />
+              <span class="rank_<?php echo $user['id_user']; ?>">
+                <select id="rank_<?php echo $user['id_user']; ?>" <?php if($user['m_rank']!=1){echo 'disabled';} ?>>
+                  <?php 
+                  foreach($User->rank_zh as $key=>$val){
+                      ?>
+                      <option value="<?php echo $key ;?>" <?php if($user['rank']==$val){echo 'selected';} ?>><?php echo $val; ?></option>
+                      <?
+                  }
+                  ?>
+                </select>
+                <button <?php if($user['m_rank']!=1){echo 'disabled';} ?> onclick="save('rank',<?php echo $user['id_user']; ?>);return false">保存</button>
+              </span>
+            </td>
+            
+            <!--激活-->
+            <td>
+              手动：<input type="radio" name="active_<?php echo $user['id_user']; ?>" <?php if($user['m_active']==1){echo 'checked';} ?> onclick="manual('active',<?php echo $user['id_user']; ?>,'m')" />&nbsp;
+              自动：<input type="radio" name="active_<?php echo $user['id_user']; ?>" <?php if($user['m_active']!=1){echo 'checked';} ?> onclick="manual('active',<?php echo $user['id_user']; ?>,'a')" /><br />
+              <span class="active_<?php echo $user['id_user']; ?>">
+                <a href="javascript:;" onclick="$('#active_help').dialog('open')" title="帮助"><img src="<?php echo LINK_ROOT; ?>/images/leaderboard-help-icon.png" /></a>
+                <input type="checkbox" id="active_<?php echo $user['id_user']; ?>" <?php if($user['active']==1){echo 'checked';} ?> <?php if($user['m_active']!=1){echo 'disabled';} ?> />
+                <button <?php if($user['m_active']!=1){echo 'disabled';} ?> onclick="save('active',<?php echo $user['id_user']; ?>);return false">保存</button>
+              </span>
+            </td>
+            
+            <td><?php echo $user['regist_time']; ?></td>
+            
+            <!--<td>
+              <button class="modify" onclick="competition_modify(<?php echo $user['id_user']; ?>)">修改</button><br>
+              <button class="del" onclick="competition_del(<?php echo $user['id_user']; ?>)">删除</button>
+            </td>-->
+          </tr>
+		  <?php	
+		  }
+	  }else{
+      ?>
+          <tr><td align="center" colspan="9" class="my_table_td">暂无任何用户</td></tr>
+      <?php
+	  }
+	  ?>
+      </tbody>
+    </table>
+    </form>
+  </div>
+</div>
+
+<!--<div id="user_sub">
+  <form id="form_user_sub">
+    <table border="0" width="99%" cellpadding="5" cellspacing="2" class="my_table">
+      <thead>
+        <tr>
+          <th width="20"><input type="checkbox" /></th>
+          <th width="">名称</th>
+          <th width="10%">队员数</th>
+          <th width="10%">排名</th>
+          <th width="10%">队伍数</th>
+          <th width="10%">已结束</th>
+          <th width="30%">分数</th>
+        </tr>
+      </thead>
+      <tbody id="user_sub_list">
+      </tbody>
+    </table>
+  </form>
+</div>-->
+
+<script type="text/javascript">
+
+
+</script>
+
+<!--清算规则-->
+<div id="pts_rank_help" style="display:none">
+  <p><strong>1.积分规则：</strong></p>
+  <p>每次竞赛结束后，所有注册用户的积分重新计算，计算根据用户所参加的所有竞赛结果计算，公式如下：</p>
+  <p><img src="<?php echo LINK_ROOT; ?>/images/pts.png" /></p>
+  <p># Team Members：本队队员数。</p>
+  <p>Team Rank：本队结果名次。</p>
+  <p>#Teams：参赛队伍数。</p>
+  <p>Time since deadline：竞赛结束到当前时间的间隔（范围是0到2年）。</p>
+  <br />
+
+  <p><strong>2.等级规则（等级设置和积分无关）：</strong></p>
+  <p>a)初级能手：用户验证注册成功。</p>
+  <p>b)竞赛先锋：用户完成一个竞赛，无论排名如何。</p>
+  <p>c)数据大师：至少有两次排名在前10%的竞赛成绩；在这些成绩中，至少有一次是排名在前10的。</p>
+  <br />
+  
+  <p><strong>补充说明：</strong>默认为全选自动。当有竞赛结束时，管理员根据情况选择用户按算法进行清算。如果积分和等级全部调为手动，则不能被选中进行清算，由管理员指定分数和等级。如果有一项设为手动，用户则可以被选中清算，但被选为手动的那项不会被清算。</p>
+</div>
+
+<!--激活说明-->
+<div id="active_help"  style="display:none">
+  <p>1.默认情况下激活状态是由用户验证成功与否自动决定的。</p>
+  <p>2.如有用户违规被发现或举报后属实，管理员可以选择手动并勾掉用户激活状态，用户帐号则被判为禁用。</p>
+  <p>3.如有用户出于某些特殊原因无法正常验证并告知管理员。经核实后，管理员可以选择手动并勾选用户激活状态。</p>
+</div>
+
+
+<script type="text/javascript">
+$('#pts_rank_help').dialog({
+	modal: true,				 
+	autoOpen:false,
+	resizable:false,
+	modal: true,
+	width:800,
+	height:600,
+	title:'清算规则',
+	close:function(){
+	},
+	buttons:{
+		'确定':function(){
+			$(this).dialog('close');
+		}
+	}
+});
+
+$('#active_help').dialog({
+	modal: true,				 
+	autoOpen:false,
+	resizable:false,
+	modal: true,
+	width:400,
+	height:300,
+	title:'激活说明',
+	close:function(){
+	},
+	buttons:{
+		'确定':function(){
+			$(this).dialog('close');
+		}
+	}
+});
+
+$(document).ready(function(){
+	/*$('#user_sub').dialog({
+		modal: true,				 
+		autoOpen:false,
+		resizable:false,
+    	modal: true,
+		width:800,
+		height:600,
+		title:'竞赛',
+		close:function(){
+		},
+		buttons:{
+			'确定':function(){
+				//competition();
+			},
+			'取消':function(){
+				$(this).dialog('close');
+			}
+		}
+	});*/
+	
+	
+	/*$.ajax({
+		url:$('#competition_index').val()+"/index.php?ajax=user&op=autocomplete",
+		data:'time='+ new Date().getTime(),
+		dataType:'json',
+		type:'POST',
+		async:true,
+		beforeSend: function(){
+			pop_loading();
+		},
+		success: function(name_list){
+			pop_loading_close();
+			//console.log(name_list);
+			$('.autocomplete').autocomplete({
+				source: name_list,
+				select: function( event, ui ) {
+					
+				}
+			});
+			var option='';
+			if(name_list){
+				option+='<option value="">请选择</option>';
+				for(i in name_list){
+					option+='<option value="'+name_list[i]+'">'+name_list[i]+'</option>';
+				}
+			}else{
+				option+='<option value="">暂无任何已完成的竞赛</option>';
+			}
+			$('#complete_list').html(option);
+		}
+	});*/
+	
+});
+
+
+//全部选择/取消
+function check_all(self,check){
+	$(check).each(function(){
+		if(self.checked&&!this.disabled){
+			this.checked=true;
+		}else{
+			this.checked=false;
+		}
+	});
+}
+
+/*function user_sub(id_user){
+	$.ajax({
+		url:$('#competition_index').val()+"/index.php?ajax=competition&op=manage_submission&time="+ new Date().getTime(),
+		data:'id_competition='+id_competition,
+		dataType:'json',
+		type:'POST',
+		async:true,
+		beforeSend: function(){
+			pop_loading();
+		},
+		success: function(submission){
+			console.log(submission);
+			var submission_list='';
+			if(submission.length>0){
+				for(i in submission){
+					submission_list+='<tr onmousemove=move_color(this) onmouseout=out_color(this)>';
+					if(submission[i]['checked']==1){
+						var color='style="color:red"';
+					}else{
+						var color='';
+					}
+					submission_list+='<td><a href="'+submission[i]['url']+'" target="_blank" '+color+'>'+submission[i]['file']+'</a>';
+					if(submission[i]['description']){
+						submission_list+='&nbsp;（'+submission[i]['description']+'）';
+					}
+					submission_list+='</td>';
+					//submission_list+='<td>'+submission[i]['description']+'</td>';
+					submission_list+='<td><a href="'+$('#competition_index').val()+'/index.php?view=my&id_user='+submission[i]['id_user']+'" target="_blank">'+submission[i]['display_name']+'</a></td>';
+					submission_list+='<td><input type="text" name="'+submission[i]['id_submission']+'" id="'+submission[i]['id_submission']+'" class="score" value="'+submission[i]['score']+'" size="5" maxlength="5" /></td>';
+					submission_list+='<td>'+submission[i]['submission_time']+'</td>';
+					submission_list+='</tr>';
+				}
+			}else{
+				submission_list+='<tr><td colspan=5>暂无任何提交</td>';
+			}
+			$('#submission_list').html(submission_list);
+			pop_loading_close();
+		}
+	});
+	$('#user_sub').dialog('open');
+}*/
+
+//手动/自动选择
+function manual(type,id_user,op){
+	if(op=='m'){
+		var m=1;
+	}else{
+		var m=0;
+	}
+	$('.'+type+'_'+id_user).children().each(function(){
+		if(op=='m'){
+			$(this).attr('disabled',false);
+		}else{
+			$(this).attr('disabled',true);
+		}
+	});
+	if(!$('#pts_'+id_user).attr('disabled')&&!$('#rank_'+id_user).attr('disabled')){
+		$('#check_'+id_user).attr('disabled',true);
+		$('#check_'+id_user).attr('checked',false);
+	}else{
+		$('#check_'+id_user).attr('disabled',false);
+		//$('#check_'+id_user).attr('checked',true);
+		document.getElementById('check_'+id_user).checked=true;
+	}
+	if(op=='a'){
+		$.ajax({
+			url:$('#competition_index').val()+"/index.php?ajax=user&op=manual&time="+ new Date().getTime(),
+			data:'type='+type+'&id_user='+id_user+'&m='+m,
+			type:'POST',
+			async:true,
+			beforeSend: function(){
+				pop_loading();
+			},
+			success: function(text){
+				pop_loading_close();
+				if(text){
+					alert(text);
+				}else{
+					window.location.reload();
+				}			
+			}
+		});
+	}
+}
+
+//保存
+function save(type,id_user){
+	if(type=='active'){
+		if(document.getElementById('active_'+id_user).checked){
+			var val=1;
+		}else{
+			var val=0;
+		}
+	}else{
+		if(!$('#'+type+'_'+id_user).val()){
+			alert('请填写分数！');
+			return false;
+		}
+		var val=$('#'+type+'_'+id_user).val();
+	}
+	$.ajax({
+		url:$('#competition_index').val()+"/index.php?ajax=user&op=save&time="+ new Date().getTime(),
+		data:'type='+type+'&id_user='+id_user+'&val='+val,
+		type:'POST',
+		async:true,
+		beforeSend: function(){
+			pop_loading();
+		},
+		success: function(text){
+			pop_loading_close();
+			if(text){
+				alert(text);
+			}else{
+				window.location.reload();
+			}			
+		}
+	});
+}
+
+//清算
+function pts_rank(){
+	var user_arr=new Array();
+	$('.user_check').each(function(){
+		if(this.checked){
+			user_arr.push(this.value);
+		}
+	});
+	if(user_arr.length==0){
+		alert('请至少选择一个用户！');
+		return false;
+	}
+	var user_list=user_arr.join(',');
+	$.ajax({
+		url:$('#competition_index').val()+"/index.php?ajax=user&op=pts_rank&time="+ new Date().getTime(),
+		data:'user_list='+user_list,
+		type:'POST',
+		async:true,
+		beforeSend: function(){
+			pop_loading();
+		},
+		success: function(text){
+			pop_loading_close();
+			if(text){
+				alert(text);
+			}else{
+				window.location.reload();
+			}			
+		}
+	});
+}
+
+//自动完成
+/*function show_auto(){
+	$('.autocomplete').autocomplete("search","");
+	//$(ELT)('#'+id).autocomplete("search","node");
+	return false;
+}*/
+
+//已结束竞赛
+function complete_list(self){
+	if(self.value){
+		url_change("replace","index.php","cl",self.value);
+	}else{
+		url_change("all","index.php","cl");
+	}
+}
+</script>
+
+<?php require(FILE_ROOT.'/views/view_footer.php'); ?>

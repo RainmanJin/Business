@@ -1,0 +1,18 @@
+body{margin:0 auto; padding:0; font: 12px "microsoft yahei","宋体",Arial;}
+img{border:0;}
+a {cursor:hand;} 
+a:link,a:visited,a:hover{ text-decoration:none; font-size:12px; color:#000;}
+ul,li,h1,h2,h3,h4,h5,p{list-style:none;margin:0;padding:0;}
+.clear{clear:both}
+#container{margin:0 auto;padding:0; background:#f1f1f1; }
+.col{background:#fafafa;}
+
+/* foot========================================================================== */
+.footer{width:1000; background:#222324; }
+.foot{width:1000px; height:65px; margin:0 auto; text-align:center; padding:15px 0px 15px 0px;  }
+.foot li{ color:#696e72;  float:left;}
+.foot li a,.foot li a:visited{ width:80px; height:30px; line-height:30px; display:block; color:#cecece; text-decoration:none; text-align:left; font-size:14px;}
+.foot li a:hover{ width:80px; height:30px; line-height:30px; display:block; color:#c6c6c6; }
+.foot span{ float:left; text-align:left; line-height:40px; color:#8e8e8e;}
+.foot span.blue{ color:#43b8f0; background:url(../images/tel.png)no-repeat 38px 12px; padding-left:60px;}
+.foot span.mail{ background:url(../images/mail.png)no-repeat 31px 13px; padding-left:60px;}

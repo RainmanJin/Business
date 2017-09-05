@@ -1,0 +1,40 @@
+id
+username
+password
+email
+nickname（可以为空）
+realname（可以为空）
+signtime
+
+
+
+登录传值：
+{'username':'lpx','password':'123456'}
+
+登录返回值：
+成功		用户表这一条记录的所有字段值的json，如{'id':3,'username':'lpx','password':'加密字符串','email':'lpx@xxx.xxx','nickname':'xxx','realname':'xxx','signtime':'2014-7-8 18:45:26'}
+用户名不存在	2
+密码错误	3
+
+注：登陆时只传username和password，用户既可以通过用户名，也可以通过邮箱登录，
+查询例子 where username=‘$username’ or email=‘$username’（$username代表传值）
+
+
+
+
+注册传值：
+{'username':'lpx','password':'123456','email':'lpx@xxx.xxx','nickname':'','realname':''}
+
+注册返回值：
+成功		同登录返回的一样
+用户名已存在	2
+邮箱已存在	3
+
+注：注册时存入时间signtime，格式2014-7-8 18:45:26，返回插入的这条记录的所有字段的值的json
+
+
+
+
+再加一个根据id查询用户详情的接口
+传入值：id
+返回值：同登录注册的一样，该id所在记录所有字段值的json

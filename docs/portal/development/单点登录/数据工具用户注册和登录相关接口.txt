@@ -1,0 +1,31 @@
+一、注册
+   ajax示例：
+	$.ajax({
+		type : "POST",
+		url : "http://172.16.252.80:8088/sofa/flex-workspace/loggin.ctrl?method=signIn",
+		data : "json=['aa':'sd']",
+		dataType : 'json',
+		success : function(msg) {
+			alert("getFileList: " + msg);
+		},
+		error : function(msg) {
+			alert("error " + msg);
+		}
+	});
+		
+二、登录
+  ajax示例：		
+	$.ajax({
+		type : "POST",
+		url : "http://172.16.252.80:8088/sofa/flex-workspace/loggin.ctrl?method=logIn",
+		data : "json=['aa':'sd']",
+		dataType : 'json',
+		success : function(msg) {
+			alert("getFileList: " + msg);
+		},
+		error : function(msg) {
+			alert("error " + msg);
+		}
+	});
+		
+		

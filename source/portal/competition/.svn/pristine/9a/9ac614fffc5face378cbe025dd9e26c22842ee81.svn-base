@@ -1,0 +1,51 @@
+<?php
+//产品
+require_once(FILE_ROOT.'/classes/class_competition.php');
+$Competition=new Competition($_POST);
+
+switch($_GET['op']){
+	case 'all':
+	$Competition->All();
+	break;
+	
+	case 'accept':
+	$Competition->Accept();
+	break;
+	
+	case 'submission':
+	$Competition->Submission($_GET,$_FILES);
+	break;
+	
+	/*case 'upload':
+	$Competition->Upload($_GET,$_FILES);
+	break;*/
+	
+	case 'team_creat':
+	$Competition->Team_creat();
+	break;
+	
+	case 'team_save':
+	$Competition->Team_save();
+	break;
+	
+	case 'team_leader':
+	$Competition->Team_leader();
+	break;
+	
+	case 'team_invite':
+	$Competition->Team_invite();
+	break;
+	
+	case 'team_accept':
+	$Competition->Team_accept($_GET);
+	break;
+	
+	case 'team_disband':
+	$Competition->Team_disband();
+	break;
+	
+	
+	default:
+	break;
+}
+?>

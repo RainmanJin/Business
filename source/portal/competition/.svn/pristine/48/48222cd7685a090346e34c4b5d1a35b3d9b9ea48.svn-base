@@ -1,0 +1,54 @@
+<?php
+require_once(FILE_ROOT.'/classes/class_competition.php');
+$Competition=new Competition($_GET);
+$competition=$Competition->Detail();
+
+$title='详情';
+?>
+<?php require(FILE_ROOT.'/views/view_header.php'); ?>
+
+<div id="wrap">
+  <div id="main">
+    <div id="competition">
+    
+      <?php require(FILE_ROOT.'/views/view_competition_header.php'); ?>
+      <?php require(FILE_ROOT.'/views/view_competition_left.php'); ?>
+      
+      <!--中间-->
+      <div class="description comp-content with-sidebar _panel">
+		<?php require(FILE_ROOT.'/views/view_competition_title.php'); ?>
+        
+        <div class="comp-content-inside">
+          <div id="competition-intro"> </div>
+          <div id="comp-homepage-content" class="cms-page _buttons">
+          
+            <?php echo $competition['description']; ?>
+            
+            <p id="end-time-note"> 
+              <strong>开始时间：</strong> <?php echo $competition['start_time']; ?> <br>
+              <strong>结束时间：</strong> <?php echo $competition['end_time']; ?> 
+                <?php
+				if($competition['deadline']>0){
+				?>
+                    （剩余<?php echo $competition['deadline']; ?>天） 
+               	<?php
+				}else{
+				?>
+                    （已过期<?php echo abs($competition['deadline']); ?>天） 
+                <?php
+				}
+				?>
+               <br>
+              <!--<strong>等级：</strong> 这个竞赛的奖励标准 <a href="https://www.kaggle.com/wiki/UserRankingAndTierSystem">等级标准</a> <br>
+              <strong>层级：</strong> 这个竞赛对于计数的 <a href="https://www.kaggle.com/wiki/UserRankingAndTierSystem">层级标准</a> -->
+            </p>
+            
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<?php require(FILE_ROOT.'/views/view_footer.php'); ?>

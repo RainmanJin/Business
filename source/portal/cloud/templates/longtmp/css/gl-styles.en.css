@@ -1,0 +1,795 @@
+.cf:before, .cf:after {
+	content: ' ';
+	display: table;
+}
+.cf:after {
+	clear: both;
+}
+.cf, .trigger-haslayout {
+	zoom: 1;
+}
+#EUCookie p {
+	z-index: 9999999999 !important;
+}
+.gl-hidden {
+	visibility: hidden;
+}
+/* global header
+   ========================================================================== */
+
+#gl-outer-wrapper {
+	display: table; /* enables it to extend beyond the viewport, makes backgrounds visible on horizontal scroll */
+	width: 100%;
+}
+#gl-inner-wrapper {
+	overflow: hidden;
+}
+#gl-header * {
+	margin: 0;
+	padding: 0;
+	background: none; /* m8 override */
+	z-index: 999999999;
+}
+#gl-header, #gl-header-bg {
+	display: table; /* enables it to extend beyond the viewport, makes backgrounds visible on horizontal scroll */
+	height: 80px; /* should always match gl_HeaderFullHeight in /common/javascript/gl-head-scripts.en.js */
+	z-index: 999999999;
+	-o-transition: height 0.3s ease;
+	-ms-transition: height 0.3s ease;
+	-moz-transition: height 0.3s ease;
+	-webkit-transition: height 0.3s ease;
+	transition: height 0.3s ease;
+}
+#gl-header-bg, #gl-header-offset {
+	display: none;
+	background: #323436;
+}
+#gl-header.gl-header-fixed, #gl-header-bg.gl-header-fixed {
+	display: table; /* enables it to extend beyond the viewport, makes backgrounds visible on horizontal scroll */
+	position: fixed;
+	top: 0;
+	left: 0;
+		
+}
+#gl-header.gl-header-fixed {
+	width:100%;
+	background: #323436;
+}
+#gl-header-bg.gl-header-fixed {
+	z-index: 999999998;
+}
+#gl-header-offset.gl-header-fixed {
+	display: block;
+	width: 100%;
+	height: 80px;
+}
+.gl-anchor {
+	display: block;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	content: ' ';
+	height: 60px; /* should always match gl_HeaderOffset in /common/javascript/gl-head-scripts.en.js */
+	margin: -60px 0 0;
+	overflow: visible;
+}
+/* variations ====================== */
+
+body.gl-header-nocompact #gl-header {
+	position: static !important;
+	height: 90px !important;
+	background: #323436;
+}
+body.gl-header-always-compact #gl-header, body.gl-header-always-compact #gl-header.gl-header-fixed, body.gl-header-always-compact #gl-header-bg.gl-header-fixed {
+	position: static !important;
+	height: 42px !important;
+	background: #323436;
+}
+body.gl-header-nocompact #gl-header-bg, body.gl-header-nocompact #gl-header-offset, body.gl-header-always-compact #gl-header-bg, body.gl-header-always-compact #gl-header-offset, body.gl-header-always-compact #gl-header-bg.gl-header-fixed, body.gl-header-always-compact #gl-header-offset.gl-header-fixed {
+	display: none;
+}
+/* top ============================= */
+
+#gl-header-top {
+	position: relative;
+	width: 100%;
+	max-width: 1000px;
+	min-width: 998px;
+	height:3px;
+	margin: 0 auto;
+	opacity: 1;
+	font-size: 12px; /* m8 override */
+	line-height: 14px; /* m8 override */
+	font-weight: 400; /* m8 override */
+	text-align: left; /* quirks mode */
+	-o-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-webkit-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+#gl-header-top ul {
+	display: block;
+	float: right;
+	margin: 7px 0 0 0;
+}
+#gl-header-top li {
+	display: block;
+	float: left;
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 12px; /* m8 override */
+	line-height: 14px; /* m8 override */
+	font-weight: 400; /* m8 override */
+	list-style: none;
+}
+#gl-header-top li:after {
+	content: '|';
+	margin: 0 10px;
+}
+#gl-header-top li.gl-last:after {
+	content: '';
+	margin: 0;
+}
+#gl-header-top a:link, #gl-header-top a:visited {
+	color: #bfbfbf;
+	text-decoration: none;
+}
+#gl-header-top a:hover, #gl-header-top a:active {
+	color: #fff;
+	text-decoration: underline;
+}
+/* bottom ========================== */
+
+#gl-header-bottom {
+	width: 100%;
+	max-width: 1000px;
+	min-width: 998px;
+
+	margin: 0 auto;
+
+}
+#gl-logo {
+	float: left;
+	width: 294px;
+	height:64px;
+}
+#gl-logo a {
+	display: block;
+}
+#gl-logo img {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	border: none; /* ie */
+}
+
+#gl-logo-wolfram {
+	display: block;
+	float: left;
+	width: 258px;
+	height: 46px;
+	margin: 20px 0 0 6px;
+	-o-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-webkit-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+
+/* global menu
+   ========================================================================== */
+
+#gl-menu {
+	float: right;
+	-o-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-webkit-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+	overflow:hidden;
+}
+#gl-menu-divider {
+	float: left;
+	height: 33px;
+	margin: 12px 0 0 0;
+	border-left: 1px solid #444;
+}
+#gl-menu .gl-has-submenu {
+	float: left;
+
+}
+/* tabs ============================ */
+
+#gl-menu a.gl-submenu-wrapper:link, #gl-menu a.gl-submenu-wrapper:visited, #gl-menu a.gl-submenu-wrapper:hover, #gl-menu a.gl-submenu-wrapper:active, #gl-menu #gl-menu-search a.gl-submenu-wrapper:hover, #gl-menu #gl-menu-search a.gl-submenu-wrapper:active {
+	display: block;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	height: 70px;
+	padding:32px 22px 0 22px;
+	border-top: 3px solid #323436;
+	color: #8c8c8c;
+	text-shadow: 1px #26292b;
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 400; /* m8 override */
+	text-decoration: none;
+}
+#gl-menu a.gl-submenu-wrapper:hover{
+	color: #a3a3a3;
+}
+#gl-menu a.zq:link, #gl-menu a.zq:visited{font:12px "microsoft yahei", "宋体", Arial; line-height:28px; background:url(../images/people.jpg) no-repeat 45px 38px; padding-left:25px; width:130px; text-align:right;}
+#gl-menu a.dl:link, #gl-menu a.dl:visited{font:12px "microsoft yahei", "宋体", Arial; line-height:30px; padding:0px;  width:70px; height:30px;  background:#505050; margin:32px 0px 0px 10px; color:fff; text-align:center;}
+#gl-menu a.dl:hover{width:70px; height:30px;  background:#43b8f0; color:#fff; }
+#gl-menu a.zc:link, #gl-menu a.zc:visited{font:12px "microsoft yahei", "宋体", Arial; line-height:30px; padding:0px;  width:70px; height:30px; background:#43b8f0;  margin:32px 10px 0px 0px;color:#fff;  text-align:center;}
+#gl-menu a.zc:hover{width:70px; height:30px; background:#505050; color: #a3a3a3;}
+
+
+
+#gl-outer-wrapper.gl-es #gl-menu a.gl-submenu-wrapper, #gl-outer-wrapper.gl-ja #gl-menu a.gl-submenu-wrapper, #gl-outer-wrapper.gl-fr #gl-menu a.gl-submenu-wrapper, #gl-outer-wrapper.gl-ru #gl-menu a.gl-submenu-wrapper {
+	font-size: 15px !important; /* prevents word wrap */
+}
+#gl-menu .gl-open a.gl-submenu-wrapper:link, #gl-menu .gl-open a.gl-submenu-wrapper:visited, #gl-menu .gl-open a.gl-submenu-wrapper:hover, #gl-menu .gl-open a.gl-submenu-wrapper:active {
+	border-top: 3px solid #c02942;
+	background: #333;
+	color: #fff;
+}
+#gl-menu #gl-menu-search.gl-open a.gl-submenu-wrapper:link, #gl-menu #gl-menu-search.gl-open a.gl-submenu-wrapper:visited, #gl-menu #gl-menu-search.gl-open a.gl-submenu-wrapper:hover, #gl-menu #gl-menu-search.gl-open a.gl-submenu-wrapper:active {
+	border-top: 3px solid #c02942;
+	background: #666;
+	color: #fff;
+}
+#gl-menu .gl-has-submenu > ul > li {
+	display: block;
+	float: left;
+	list-style: none;
+}
+/* submenu ========================= */
+
+#gl-menu .gl-submenu {
+	/* display: none; */
+    position: absolute;
+	width: 100%;
+	top: -900px;
+	left: 0;
+	background: #333;
+}
+#gl-menu .gl-open .gl-submenu {
+	/* display: block; */
+    top: 85px;
+	left: 0;
+}
+#gl-menu .gl-hover:hover {
+	background: #444;
+}
+#gl-menu .gl-col-wrapper {
+	display: table;
+	width: 100%;
+	max-width: 1200px;
+	min-width: 998px;
+	margin: 0 auto;
+	padding: 16px 0;
+}
+#gl-menu .gl-col {
+	display: table-cell;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	padding: 12px 24px;
+	border-right: 1px solid #545454;
+}
+#gl-menu .gl-col.gl-last {
+	border: none;
+}
+#gl-menu .gl-col a:link, #gl-menu .gl-col a:visited {
+	color: #ddd;
+	text-decoration: none;
+}
+#gl-menu .gl-col a:hover, #gl-menu .gl-col a:active {
+	color: #fff;
+	text-decoration: none;
+}
+#gl-menu .gl-col ul, #gl-menu .gl-col li {
+	display: block;
+	padding: 0; /* m8 override */
+	list-style: none;
+}
+#gl-menu .gl-col ul li a {
+	display: block;
+	margin: 0 0 0 32px;
+	padding: 6px 0;
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 14px;
+	line-height: 16px;
+	font-weight: 300;
+}
+/* submenu headers ================= */
+
+#gl-menu .gl-col > li {
+	color: #ddd;
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 600;
+}
+#gl-menu .gl-col > li > a {
+	display: block;
+}
+#gl-menu .gl-col > li > a:link, #gl-menu .gl-col > li > a:visited {
+	color: #ddd;
+}
+#gl-menu .gl-col > li > a:hover, #gl-menu .gl-col > li > a:active {
+	color: #fff;
+}
+#gl-menu .gl-col > li > ul {
+	display: block;
+	margin: 6px 0 0 0;
+}
+/* submenu footer ================== */
+
+#gl-menu .gl-col-footer {
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 11px;
+	line-height: 13px;
+	font-weight: 400; /* m8 override */
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	text-align: center;
+}
+#gl-menu .gl-col-footer a:link, #gl-menu .gl-col-footer a:visited {
+	display: block;
+	padding: 12px 0;
+	background: #323436;
+	color: #eee;
+	text-decoration: none;
+}
+#gl-menu .gl-col-footer a:hover, #gl-menu .gl-col-footer a:active {
+	background: #111;
+	color: #fff;
+}
+/* submenu icons =================== */
+
+#gl-menu .gl-icon, #gl-menu .gl-rtall, #gl-footer .gl-icon {
+	display: block;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	float: left;
+	width: 24px;
+	height: 24px;
+	margin: 0 8px 24px 0;
+	background: url('/common/images/gl-menu-icons.png') no-repeat;
+	font-size: 0;
+	line-height: 0;
+	vertical-align: top;
+}
+#gl-menu .gl-r1-c1 {
+	background-position: 0 0;
+}
+#gl-menu .gl-r1-c2 {
+	background-position: -24px 0;
+}
+#gl-menu .gl-r1-c3 {
+	background-position: -48px 0;
+}
+#gl-menu .gl-r1-c4 {
+	background-position: -72px 0;
+}
+#gl-menu .gl-r1-c5 {
+	background-position: -96px 0;
+}
+#gl-menu .gl-r1-c6 {
+	background-position: -120px 0;
+}
+#gl-menu .gl-r1-c7 {
+	background-position: -144px 0;
+}
+#gl-menu .gl-r1-c8 {
+	background-position: -168px 0;
+}
+#gl-menu .gl-r1-c9 {
+	background-position: -192px 0;
+}
+#gl-menu .gl-r2-c1 {
+	background-position: 0 -24px;
+}
+#gl-menu .gl-r2-c2 {
+	background-position: -24px -24px;
+}
+#gl-menu .gl-r2-c3 {
+	background-position: -48px -24px;
+}
+#gl-menu .gl-r2-c4 {
+	background-position: -72px -24px;
+}
+#gl-menu .gl-r2-c5 {
+	background-position: -96px -24px;
+}
+#gl-menu .gl-r2-c6 {
+	background-position: -120px -24px;
+}
+#gl-menu .gl-r2-c7 {
+	background-position: -144px -24px;
+}
+#gl-menu .gl-r2-c8 {
+	background-position: -168px -24px;
+}
+#gl-menu .gl-r2-c9 {
+	background-position: -192px -24px;
+}
+#gl-menu .gl-r3-c1 {
+	background-position: 0 -48px;
+}
+#gl-menu .gl-r3-c2 {
+	background-position: -24px -48px;
+}
+#gl-menu .gl-r3-c3 {
+	background-position: -48px -48px;
+}
+#gl-menu .gl-r3-c4 {
+	background-position: -72px -48px;
+}
+#gl-menu .gl-r3-c5 {
+	background-position: -96px -48px;
+}
+#gl-menu .gl-r3-c6 {
+	background-position: -120px -48px;
+}
+#gl-menu .gl-r4-c1 {
+	background-position: 0 -72px;
+}
+#gl-menu .gl-r4-c2 {
+	background-position: -24px -72px;
+}
+#gl-menu .gl-r4-c3 {
+	background-position: -48px -72px;
+}
+#gl-menu .gl-r4-c4 {
+	background-position: -72px -72px;
+}
+#gl-menu .gl-r5-c1 {
+	background-position: 0 -96px;
+}
+#gl-menu .gl-r5-c2 {
+	background-position: -24px -96px;
+}
+#gl-menu .gl-r5-c3 {
+	background-position: -48px -96px;
+}
+#gl-menu .gl-r6-c1 {
+	background-position: 0 -120px;
+	width: 16px;
+	height: 16px;
+	margin: 5px 8px 0 0;
+	cursor: pointer;
+}
+#gl-footer .gl-r7-c1 {
+	background-position: 0 -136px;
+	width: 56px;
+	height: 16px;
+	margin: 0;
+	cursor: pointer;
+}
+#gl-footer .gl-r7-c2 {
+	background-position: -56px -136px;
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	margin: 0 4px 0 0;
+}
+ @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
+ #gl-menu .gl-icon,  #gl-menu .gl-rtall,  #gl-footer .gl-icon {
+ background-image: url('/common/images/gl-menu-icons@2x.png');
+ background-size: 216px 152px;
+}
+}
+/* products submenu ================ */
+
+#gl-submenu-products .gl-col {
+	width: 25%;
+}
+#gl-submenu-products .gl-col1 .gl-icon {
+	margin: 0 8px 0 0;
+}
+#gl-submenu-products .gl-col1 > li > a {
+	padding: 6px 0;
+	border-bottom: 1px solid #545454;
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 600;
+}
+#gl-submenu-products .gl-col1 > li.gl-last > a {
+	border: none;
+}
+/* technologies submenu ============ */
+
+#gl-submenu-technologies .gl-col {
+	width: 33.33333333333333%;
+	border: none;
+}
+#gl-submenu-technologies .gl-col a {
+	display: block;
+	padding: 12px 24px;
+}
+#gl-submenu-technologies .gl-col span {
+	display: block;
+	margin: 6px 0 0 32px;
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 14px;
+	line-height: 16px;
+	font-weight: 300;
+}
+#gl-submenu-technologies .gl-col span:first-child {
+	margin: 0;
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 600;
+}
+/* solutions submenu =============== */
+
+#gl-submenu-solutions .gl-col {
+	width: 25%;
+}
+#gl-submenu-solutions .gl-col.gl-col2, #gl-submenu-solutions .gl-col.gl-col4 {
+	padding: 0;
+}
+#gl-submenu-solutions .gl-col.gl-col2 .gl-hover, #gl-submenu-solutions .gl-col.gl-col4 .gl-hover {
+	padding: 12px 24px;
+}
+/* support submenu ================= */
+
+#gl-submenu-support .gl-col {
+	width: 25%;
+}
+/* company submenu ================= */
+
+#gl-submenu-company .gl-col {
+	width: 25%;
+}
+#gl-submenu-company > div > .gl-hover {
+	display: table-cell;
+}
+/* search submenu ================== */
+
+#gl-header #gl-submenu-search {
+	background: transparent;
+}
+#gl-search-wrapper {
+	width: 100%;
+	max-width: 1200px;
+	min-width: 998px;
+	margin: 0 auto;
+}
+#gl-search-wrapper form > div {
+	position: relative;
+	float: right;
+	top: -4px;
+	padding: 16px;
+	background: #666;
+}
+#gl-search-wrapper #gl-search {
+	display: block;
+	width: 400px;
+	padding: 4px 14px;
+	border: 1px solid #555;
+	background: #eee;
+	color: #999;
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 14px;
+	line-height: 16px;
+	font-weight: 400; /* m8 override */
+	font-style: italic;
+	outline: none; /* gets rid of :focus outline in chrome */
+}
+#gl-search-wrapper #gl-search.normal {
+	font-style: normal;
+}
+#gl-search-wrapper #gl-search.italics {
+	font-style: italic;
+}
+#gl-search-wrapper #gl-search.active {
+	color: #444;
+}
+/* global header, compact version
+   ========================================================================== */
+
+#gl-header.gl-compact, #gl-header-bg.gl-compact, body.gl-header-always-compact #gl-header, body.gl-header-always-compact #gl-header-bg {
+	height: 42px; /* should always match gl_HeaderCompactHeight in /common/javascript/gl-head-scripts.en.js */
+}
+#gl-header.gl-compact #gl-header-top, body.gl-header-always-compact #gl-header #gl-header-top {
+	margin-top: -30px;
+	opacity: 0;
+}
+#gl-header.gl-compact #gl-header-bottom, body.gl-header-always-compact #gl-header #gl-header-bottom {
+	height: 42px;
+}
+#gl-header.gl-compact #gl-logo-spikey, body.gl-header-always-compact #gl-header #gl-logo-spikey {
+	width: 32px;
+	height: 33px;
+	margin: 5px 0 0 0;
+}
+#gl-header.gl-compact #gl-logo-wolfram, body.gl-header-always-compact #gl-header #gl-logo-wolfram {
+	width: 200px;
+	height: 36px;
+	margin: 30px 0 0 6px;
+}
+#gl-header.gl-compact #gl-logo-slogan, body.gl-header-always-compact #gl-header #gl-logo-slogan {
+	width: 110px;
+	margin-top: -42px;
+	opacity: 0;
+}
+#gl-header.gl-compact #gl-menu, body.gl-header-always-compact #gl-header #gl-menu {
+	margin: 0;
+}
+#gl-header.gl-compact #gl-menu .gl-r6-c1, body.gl-header-always-compact #gl-header #gl-menu .gl-r6-c1 {
+	margin: 13px 8px 0 0;
+}
+#gl-header.gl-compact #gl-menu-divider, body.gl-header-always-compact #gl-header #gl-menu-divider {
+	height: 30px;
+	margin: 6px 0 0 0;
+}
+/*#gl-header.gl-compact #gl-menu .gl-has-submenu > a:link, #gl-header.gl-compact #gl-menu .gl-has-submenu > a:visited, body.gl-header-always-compact #gl-header #gl-menu .gl-has-submenu > a:link, body.gl-header-always-compact #gl-header #gl-menu .gl-has-submenu > a:visited {
+	height: 42px;
+	padding: 0 16px;
+	line-height: 42px;
+	border: none;
+}*/
+#gl-header.gl-compact #gl-menu .gl-has-submenu > a:hover, #gl-header.gl-compact #gl-menu .gl-has-submenu > a:active, body.gl-header-always-compact #gl-header #gl-menu .gl-has-submenu > a:hover, body.gl-header-always-compact #gl-header #gl-menu .gl-has-submenu > a:active {
+	border: none;
+}
+#gl-header.gl-compact .gl-submenu, body.gl-header-always-compact #gl-header .gl-submenu {
+	top: -900px;
+	left: 0;
+}
+#gl-header.gl-compact .gl-open .gl-submenu, body.gl-header-always-compact #gl-header .gl-open .gl-submenu {
+	top: 42px;
+	left: 0;
+}
+#gl-header.gl-compact #gl-search-wrapper form > div, body.gl-header-always-compact #gl-header #gl-search-wrapper form > div {
+	top: 0;
+}
+/* global footer
+   ========================================================================== */
+
+#gl-footer-difference {
+	display: none;
+	height: 0;
+	margin: 0;
+	padding: 0;
+	background: none; /* m8 override */
+}
+#gl-footer * {
+	margin: 0;
+	padding: 0;
+	background: none; /* m8 override */
+}
+#gl-footer {
+	display: table; /* enables it to extend beyond the viewport, makes backgrounds visible on horizontal scroll */
+	width: 100%;
+	border-top: 3px solid #ddd;
+	background: #eee;
+	color: #666;
+	font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+	font-weight: 400;
+}
+#gl-footer a:link, #gl-footer a:visited {
+	color: #666;
+	text-decoration: none;
+}
+#gl-footer a:hover, #gl-footer a:active {
+	color: #c02942;
+}
+/* menu ============================ */
+
+#gl-footer-menu {
+	width: 100%;
+	max-width: 1200px;
+	min-width: 998px;
+	margin: 0 auto 24px auto;
+}
+#gl-footer-menu .gl-col {
+	float: left;
+	width: 20%;
+}
+#gl-footer-menu .gl-col-1 {
+	margin-left: 2%;
+}
+#gl-footer-menu .gl-col-5 {
+	width: 18%;
+}
+#gl-footer-menu ul {
+	margin: 24px 0 0 0;
+}
+#gl-footer-menu li {
+	padding: 3px 24px;
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 12px;
+	line-height: 14px;
+	font-weight: 400; /* m8 override */
+	list-style: none;
+}
+#gl-footer-menu li.gl-all {
+	font-size: 11px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+}
+#gl-footer-menu li.gl-first {
+	color: #333;
+	font-size: 14px;
+	line-height: 16px;
+}
+/* copyright ======================= */
+
+#gl-footer-copyright {
+	width: 100%;
+	max-width: 1200px;
+	min-width: 998px;
+	margin: 0 auto;
+	padding: 8px 0 32px 0;
+	border-top: 1px solid #ccc;
+}
+#gl-footer-copyright .gl-col1 {
+	display: block;
+	float: left;
+	margin: 0 0 6px 24px;
+	font-size: 12px;
+	line-height: 14px;
+}
+#gl-footer-copyright .gl-col1 span {
+	display: block;
+	float: left;
+	padding: 4px 0;
+}
+#gl-footer-lang {
+	display: none;
+	float: left;
+}
+#gl-footer #gl-footer-lang {
+	display: block;
+}
+#gl-footer-lang:before {
+	display: none;
+	float: left;
+	content: '|';
+	padding: 0 10px;
+}
+#gl-footer #gl-footer-lang:before {
+	display: block;
+}
+#gl-footer-lang img {
+	padding: 0 8px;
+	border: none; /* ie */
+	vertical-align: middle;
+}
+#gl-footer-copyright .gl-col2 {
+	display: block;
+	float: right;
+	margin: 0 24px 6px 0;
+}
+#gl-footer-copyright .gl-col2 li {
+	display: block;
+	float: left;
+	color: #666;
+	font-family:"microsoft yahei", "宋体", Arial;
+	font-size: 12px;
+	line-height: 14px;
+	font-weight: 400; /* m8 override */
+	list-style: none;
+}
+#gl-footer-copyright .gl-col2 a {
+	display: block;
+	float: left;
+	padding: 4px 0;
+}
+#gl-footer-copyright .gl-col2 li:after {
+	display: block;
+	float: left;
+	content: '|';
+	margin: 4px 10px;
+}
+#gl-footer-copyright .gl-col2 li.gl-last:after {
+	content: '';
+	margin: 0;
+}

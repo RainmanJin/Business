@@ -1,0 +1,313 @@
+<?php 
+if(!isset($_SESSION['user'])&&!isset($_GET['id_user'])){
+	header('location:'.COMPETITION_INDEX.'/index.php?view=login');
+}
+
+if(isset($_GET['id_user'])){
+	$user=$DB->Get_arr('select * from ka_users where id_user='.$_GET['id_user']);
+}else{
+	$user=$_SESSION['user'];
+}
+
+//$rank_zh=array('master'=>'瓦史托德','kaggler'=>'亚丘卡斯','novice'=>'基里安');
+$rank_zh=array('master'=>'数据大师','kaggler'=>'竞赛先锋','novice'=>'初级能手');
+
+$togo=ceil((time()-strtotime($user['regist_time']))/60/60/24);
+
+
+
+$result_list=array();
+$results=mysql_query('select ka_competitions.id_competition,	ka_competitions.name_competition,	ka_competitions.end_time 
+					 from ka_competitions,	ka_acceptions 
+					 where ka_competitions.id_competition=ka_acceptions.id_competition 
+					 and ka_acceptions.id_user='.$user['id_user']);
+while($result=mysql_fetch_assoc($results)){
+	//图片
+	if(file_exists(FILE_ROOT.'/images/competition/'.$result['id_competition'].'.jpg')){
+		$result['image']=LINK_ROOT.'/images/competition/'.$result['id_competition'].'.jpg';
+	}else{
+		$result['image']=LINK_ROOT.'/images/num_10.jpg';
+	}
+	$result['my_entries']=$DB->Get_one('select count(*) from ka_submissions where id_competition='.$result['id_competition'].' and id_user='.$user['id_user']);
+	$result['entries']=$DB->Get_one('select count(*) from ka_submissions where id_competition='.$result['id_competition']);
+	$result['deadline']=ceil((strtotime($result['end_time'])-time())/60/60/24);
+	$result_list[]=$result;
+}
+
+?>
+<?php require(FILE_ROOT.'/views/view_header.php'); ?>
+
+<link rel="stylesheet" href="<?php echo LINK_ROOT; ?>/css/profiles.less.css" type="text/css" />
+
+<div id="main">
+  <div class="kaggle content">
+    <div id="profile2">
+    
+      <!-- ko with:profile -->
+      <div id="profile2-head" data-bind="init: results.load, css: false ? &#39;kaggle team&#39; : tierName" class="<?php echo $user['rank'];  ?>">
+        <div id="profile2-card">
+          <h1 data-bind="text: name, style: { cursor: &#39;pointer&#39; }, click: gotoUrl" style="cursor: pointer;"><?php echo $user['display_name']; ?></h1>
+        </div>
+        <!--头像-->
+        <div id="profile2-stats" data-bind="visible: true">
+          <div id="profile2-ranking">
+            <h3 id="tier-info"> 
+              <span id="tier-text" data-bind="text: false ? &#39;kaggle team&#39; : tierName"><?php echo $rank_zh[$user['rank']]; ?></span> 
+              <a class="tier-popup" href="javascript:;" onclick="rank_help()">?</a> 
+            </h3>
+            <!-- ko if:ranking -->
+            <!-- /ko -->
+            <h6> <span data-bind="if: points"></span><br>
+              在 <span data-bind="timeago: registered" class="timeago" title=""><?php echo $togo; ?> 天前加入</span> </h6>
+          </div>
+          <?php	
+          if(file_exists(FILE_ROOT.'/images/user/'.$user['id_user'].'.jpg')){
+          ?>
+              <img id="profile2-avatar" width="240" height="240" src="./images/user/<?php echo $user['id_user']; ?>.jpg" alt="" title="" data-bind="attr: { src: gravatarUrl(240, 240) }, click: gotoUrl"> 
+          <?php  
+          }else{
+          ?>
+              <img id="profile2-avatar" width="240" height="240" src="./images/default.png" alt="" title="" data-bind="attr: { src: gravatarUrl(240, 240) }, click: gotoUrl"> 
+          <?php	  
+          }
+          ?>
+        </div>
+      </div>
+      
+      <!-- 标签 -->
+      <div id="tabs">
+        <ul>
+          <li> <a href="#tab1">总览</a> </li>
+          <li> <a href="#tab2">接受</a> </li>
+		  <?php
+          if($user['id_user']==$_SESSION['user']['id_user']){
+          ?>
+              <li> <a href="#tab3" >账号</a> </li>
+          <?php
+          }
+          ?>
+        </ul>
+        
+        <div id="tab1">
+          <style>
+		  .profile th{
+			  color:#CCC;
+			  font-size:24px;
+			  text-align:left;
+			  border-top:1px solid #ccc
+			  
+		  }
+		  .profile td{
+			  height:50px;
+			  vertical-align:top
+		  }
+		  .shu{
+			  border-right:1px solid #ccc
+			  
+		  }
+		  </style>
+          <table border="0" width="100%" cellpadding="12" class="profile">
+            <?php
+			if($user['id_user']==$_SESSION['user']['id_user']){
+			?>
+                <tr>
+                  <td colspan="2" style="background:#fffce2; vertical-align:middle; text-align:center"><button class="ju_button">编辑总览</button></td>
+                </tr>
+            <?php
+			}
+			?>
+            <tr>
+              <th class="shu" width="50%">简历</th>
+              <th>成就</th>
+            </tr>
+            <tr>
+              <td class="shu"><?php echo $user['bio']; ?></td>
+              <td>&nbsp;</td>
+            </tr>
+            
+            <tr>
+              <th class="shu">技能</th>
+              <th>&nbsp;</th>
+            </tr>
+            <tr>
+              <td class="shu"><?php echo $user['skill']; ?></td>
+              <td>&nbsp;</td>
+            </tr>
+          </table>
+          
+          
+          <!--tab1_end-->
+        </div>
+        
+        <div id="tab2">
+          <style>
+		  .profile-comp-list td{
+			  border-bottom:1px solid #ccc;
+			  background:#ecf9ff
+		  }
+		  </style>
+          <table class="profile-comp-list" data-bind="foreach: fullResults" border="0" width="100%">
+            <?php
+			if($result_list){
+				foreach($result_list as $result){
+			?>
+                    <tbody>
+                      <tr>
+                        <td width="100">
+                          <a href="<?php echo COMPETITION_INDEX; ?>/index.php?view=competition&id_competition=<?php echo $result['id_competition']; ?>" target="_blank"> 
+                            <img height="76" width="76"  src="<?php echo $result['image']; ?>"> 
+                          </a>
+                        </td>
+                        
+                        <td class="comp-details">
+                          <h4> 
+                          <a href="<?php echo COMPETITION_INDEX; ?>/index.php?view=competition&id_competition=<?php echo $result['id_competition']; ?>" target="_blank"><?php echo $result['name_competition']; ?></a> 
+                          </h4>
+                          <span><?php echo $result['my_entries']; ?> 个提交</span>
+                        </td>
+                        
+                        <td class="comp-time">
+                          <h5>当前</h5>
+                          <strong><?php echo $result['my_entries']; ?></strong>/<span><?php echo $result['entries']; ?></span>
+                          <h6 > 
+                          结束于 <span><?php echo $result['deadline']; ?>天后</span> 
+                          </h6>
+                        </td>
+                      </tr>
+                    </tbody>
+            <?php
+				}
+			}else{
+			?>
+            	<tr><td colspan="3">暂无任何参与</td></tr>
+            <?php
+			}
+			?>
+          </table>
+          <!--tab2_end-->
+        </div>
+        
+		<?php
+        if($user['id_user']==$_SESSION['user']['id_user']){
+		?>
+			<div id="tab3">
+              <div style="clear:both"></div>
+              <div style="float:left; border-right:1px solid #ccc; width:50%; height:400px">
+                <table border="0" width="100%" cellpadding="8">
+                  <tr>
+                    <th style="font-size:24px; text-align:left; color:#ccc">帐号</th>
+                  </tr>
+                  <tr>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>昵称</td>
+                  </tr>
+                  <tr>
+                    <td><strong><?php echo $_SESSION['user']['display_name']; ?></strong><!--&nbsp;<a href="javascript:;" style="color:#20beff">修改</a>--></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>真实/合法的姓名</td>
+                  </tr>
+                  <tr>
+                    <td><strong><?php echo $_SESSION['user']['legal_name']; ?></strong><!--&nbsp;<a href="javascript:;" style="color:#20beff">修改</a>--></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>Email</td>
+                  </tr>
+                  <tr>
+                    <td><strong><?php echo $_SESSION['user']['email']; ?></strong><!--&nbsp;<a href="javascript:;" style="color:#20beff">修改</a>--></td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td><button class="ju_button">修改</button></td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="float:right; border:0px solid #ccc; width:49%; height:400px">
+                <table border="0" width="100%" cellpadding="8">
+                  <tr>
+                    <th style="font-size:24px; text-align:left; color:#ccc">我的登录状态</th>
+                  </tr>
+                  <tr>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td style="background:#eee"><font size="+1"><?php echo $_SESSION['user']['name_user']; ?></font> | 
+                    <!--<a href="javascript:;" style="color:#20beff">修改用户名</a> 或-->
+                    <a href="javascript:;" style="color:#20beff">修改密码</a></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                  </tr>
+                  <!--<tr>
+                    <td><a href="<?php echo COMPETITION_INDEX; ?>/index.php?ajax=user&op=logout">登出</a> </td>
+                  </tr>-->
+                </table>
+              </div>
+              <div style="clear:both"></div>
+			  <!--tab3_end-->
+			</div>
+		<?php
+        }
+        ?>
+        
+        
+        <!--tab_end-->
+      </div>
+      
+        
+    </div>
+  </div>
+</div>
+
+<!--等级说明弹出层-->
+<div id="tiers-info-popup" style="display:none;">
+  <ul>
+    <li id="tier-info-master"> <img src="<?php echo LINK_ROOT; ?>/images/tier-big-master.png" alt="Master">
+      <h1><?php echo $rank_zh['master']; ?></h1>
+      <p> 顶级的数据专家，拥有很多成功的提交结果经验的重要参与者。 </p>
+    </li>
+    <li id="tier-info-kaggler"> <img src="<?php echo LINK_ROOT; ?>/images/tier-big-kaggler.png" alt="Kaggler">
+      <h1><?php echo $rank_zh['kaggler']; ?></h1>
+      <p> 积极参与竞赛的活跃者。 </p>
+    </li>
+    <li id="tier-info-novice"> <img src="<?php echo LINK_ROOT; ?>/images/tier-big-novice.png" alt="Novice">
+      <h1><?php echo $rank_zh['novice']; ?></h1>
+      <p> 刚开始加入进来参加竞赛的菜鸟。 </p>
+    </li>
+  </ul>
+  <!--<p style="text-align:center; margin:2em 0 1em; font-size:15px;"> <a href="https://www.kaggle.com/wiki/UserRankingAndTierSystem" target="_blank">更多信息关于我们的用户等级&amp;层级系统 »</a> </p>-->
+  <script type="text/javascript">
+  jQuery(function($) {
+      $('body').on('click', 'a.tier-popup', function() {
+          $('#tiers-info-popup').dialog({
+              'modal':true,
+              'width':640,
+              'title':"用户等级",
+              'resizable':false,
+              'dialogClass': 'nicedialog'
+          });
+      });
+  });
+  </script>
+</div>
+    
+<script type="text/javascript">
+$('#tabs').tabs();
+$('#ju_button').button();
+</script>
+
+
+
+
+<?php require(FILE_ROOT.'/views/view_footer.php'); ?>

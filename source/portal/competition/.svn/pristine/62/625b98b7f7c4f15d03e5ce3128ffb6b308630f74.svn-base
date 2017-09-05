@@ -1,0 +1,304 @@
+<?php
+require_once(FILE_ROOT.'/classes/class_competition.php');
+$Competition=new Competition($_GET);
+$competition=$Competition->Detail();
+$member_list=$Competition->Team();
+
+$title='团队参与';
+?>
+<?php require(FILE_ROOT.'/views/view_header.php'); ?>
+
+<div id="wrap">
+  <div id="main">
+    <div id="competition">
+    
+      <?php require(FILE_ROOT.'/views/view_competition_header.php'); ?>
+      <?php require(FILE_ROOT.'/views/view_competition_left.php'); ?>
+      
+      <!--中间-->
+      <div class="view-team-profile-page comp-content with-sidebar _panel">
+      <?php
+	  if(!$_SESSION['user']['team']){
+	  ?>
+		  <?php require(FILE_ROOT.'/views/view_competition_title.php'); ?>
+          <div class="comp-content-inside">
+              <div id="competition-intro"> </div>
+              <h3>创建你的团队</h3>
+              <div class="reminder-message">友情提示： 一个人建立多个帐号参与竞赛是违反规则的。</div>
+              <form action="http://www.kaggle.com/c/seizure-prediction/team/create" id="team-form" method="post">
+                <input name="__RequestVerificationToken" type="hidden" value="0n4albz5oA_6sqYCyWd87wXTS5rOW8SInpMxVLIR8s86crmhvw012bzZwIudwRTPlR6WeJQtgViFGa1BaQLwOOIj6h41">
+                <fieldset>
+                  <div id="team-name-div" class="_buttons">
+                    <label>团队名称</label>
+                    <input id="team-name-input" type="text" name="name" value="<?php //echo $_SESSION['user']['display_name']; ?>">
+                    <div class="note">作为团队领袖你只能作为团队的一员参与竞赛，所以未来任何竞赛都以此团队名义参与。</div>
+                  </div>
+                </fieldset>
+                <fieldset id="team-options" class="_buttons">
+                </fieldset>
+                <fieldset id="submit-progress" class="step1 _buttons">
+                  <input type="submit" value="创建团队" onclick="team_creat();return false">
+                </fieldset>
+              </form>
+            </div>
+      <?php 
+	  }else{
+		  if(!$_SESSION['user']['is_leader']){
+		  ?>
+              <div class="comp-content-inside">
+                <div id="competition-intro"> </div>
+                <h3>团队 “<?php echo $_SESSION['user']['team']; ?>” 详情</h3>
+                <ul id="current-team">
+                <?php 
+                foreach($member_list as $member){
+                    if($member['is_leader']==1){
+						$leader_name=$member['display_name'];
+						$leader_email=$member['email'];
+                    ?>
+                        <li class="leader"> 
+                          <a target="_blank" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=my&id_user=<?php echo $member['id_user']; ?>">
+                            <img src="<?php echo $member['image']; ?>">
+                          </a>
+                          <div class="user-details">
+                            <h3><a target="_blank" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=my&id_user=<?php echo $member['id_user']; ?>"><?php echo $member['display_name']; ?></a></h3>
+                            <h4>团队领袖</h4>
+                          </div>
+                        </li>
+                    <?php 
+                    }else{
+                    ?>
+                        <li> 
+                          <a target="_blank" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=my&id_user=<?php echo $member['id_user']; ?>">
+                          <img src="<?php echo $member['image']; ?>">
+                          </a>
+                          <div class="user-details">
+                            <h3><a target="_blank" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=my&id_user=<?php echo $member['id_user']; ?>"><?php echo $member['display_name']; ?></a></h3>
+                          </div>
+                        </li>
+                      <?php 
+                      }
+                  }
+                  ?>
+                  </ul>
+                  <div>如有需要请联系团队领袖：<?php echo $leader_name; ?>，E-mail：<?php echo $leader_email;  ?></div>
+                </div>
+			<?php 
+            }else{
+            ?>
+                <div class="comp-content-inside">
+                  <div id="competition-intro"> </div>
+                  <h3>管理你的团队</h3>
+                  <div id="team-edit" data-bind="with: team, visible: true">
+                    <form action="http://www.kaggle.com/c/digit-recognizer/submit" class="_buttons team-action" method="get">
+                      <input type="submit" value="提交文件" onclick="window.location='<?php echo COMPETITION_INDEX; ?>/index.php?view=competition_submission&id_competition=<?php echo $competition['id_competition']; ?>';return false">
+                      <p>代表你的团队</p>
+                    </form>
+                    <div id="team-name-div" class="field">
+                      <label>团队名称</label>
+                      <input class="input" id="team-name-input" type="text" name="teamName" data-bind="value: name, valueUpdate: &#39;afterkeydown&#39;" value="<?php echo $_SESSION['user']['team']; ?>">
+                    </div>
+                    <div class="field slide-down _buttons" data-bind="slideDownUp: changed" style="display: block">
+                      <label>&nbsp;</label>
+                      <input type="button" value="保存团队修改" data-bind="click: $root.saveTeamSettings" onclick="team_save()">
+                    </div>
+                    <div id="team-members" class="field _buttons">
+                      <label>团队人员</label>
+                      <ul id="current-team">
+                        <!-- ko foreach: members -->
+                        <?php 
+                        foreach($member_list as $member){
+                        ?>
+                            <li data-bind="css: id == Kaggle.Current.userId ? &#39;you&#39; : id == $parent.teamLeaderId() ? &#39;leader&#39; : null" class="you"> 
+                              <a target="_blank" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=my&id_user=<?php echo $member['id_user']; ?>"> 
+                                <img height="90" width="90"  src="<?php echo $member['image']; ?>" /> 
+                              </a>
+                              <div class="user-details">
+                                <h3><a target="_blank" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=my&id_user=<?php echo $member['id_user']; ?>"><?php echo $member['display_name']; ?></a></h3>
+                                
+                                <?php 
+                                if($member['is_leader']==1){
+                                ?>
+                                    <h4 data-bind="visible: id == $parent.teamLeaderId()">团队领袖</h4>
+                                <?php 
+                                }/*else{
+                                ?>
+                                    <h4 data-bind="visible: id != $parent.teamLeaderId()" style="display: block;">
+                                      <a href="javascript:;" onclick="team_leader('<?php echo $member['id_user']; ?>','<?php echo $member['display_name']; ?>')">设为领袖</a>
+                                    </h4>
+                                <?php 
+                                }*/
+                                ?>
+                              </div>
+                            </li>
+                        <?php 
+                        }
+                        ?>
+                        <!-- /ko -->
+                      </ul>
+                      <div id="team-invites" class="_buttons">
+                        <label data-bind="visible: activeInvites().length" style="display:none">活动的要求</label>
+                        <table id="pending-invites" class="full nicetable roomy" data-bind="visible: activeInvites().length, foreach: activeInvites" style="display:block;">
+                        </table>
+                        <div id="invite-member">
+                          <label>邀请其他人加人你的团队</label>
+                          <form id="invite-member-form" data-bind="submit: $root.inviteMemberByEmail">
+                            <div>
+                              <input type="text" name="email" id="invite-member-email" placeholder="邮件地址" style="width: 60%;">
+                              <input type="submit" value="发送" onclick="team_invite();return false">
+                            </div>
+                          </form>
+                        </div>
+                        <!--<div id="team-invites-warnings"> 这个竞赛允许最大的团队参与人数是100人 </div>-->
+                        <label data-bind="visible: rejectedInvites().length" style="display:none">拒绝的邀请</label>
+                        <table id="rejected-invites" class="full nicetable roomy" data-bind="foreach: rejectedInvites">
+                        </table>
+                      </div>
+                    </div>
+                    <form action="http://www.kaggle.com/teams/delete" class="_buttons team-action warn" method="post">
+                      <input name="__RequestVerificationToken" type="hidden" value="wd-Gf-bDwRDnpG3tYsdPpAOUzEXQ3CP8x0xIvmfvj5wPlAZ-nyruTuODRpbYzrjpPkjY31otZKr7JfpmOnKVhBvdEOk1">
+                      <input id="teamId" name="teamId" type="hidden" value="121211">
+                      <input type="submit" value="解散团队" onclick="team_disband();return false">
+                      <p>该团队所有的提交会在解散后归团队领袖所有</p>
+                    </form>
+                  </div>
+                </div>
+      <?php 
+			}
+	  }
+	  ?>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+//创建团队
+function team_creat(){
+	if(!$("#team-name-input").val()){
+		alert("请填写您的团队名称！");
+		//$("#email").attr('class','form-error');
+		return false;
+	}else{
+		//$("#email").attr('class','form-ok');
+	}
+	$.ajax({
+		url:$('#competition_index').val()+"/index.php?ajax=competition&op=team_creat&time="+ new Date().getTime(),
+		data:'team_name='+$("#team-name-input").val(),
+		type:'POST',
+		async:true,
+		beforeSend: function(){
+			pop_loading();
+		},
+		success: function(text){
+			pop_loading_close();
+			if(text){
+				alert(text);
+			}else{
+				window.location.reload();
+			}
+		}
+	});
+	
+}
+//修改名称
+function team_save(){
+	if(!$("#team-name-input").val()){
+		alert("请填写您的团队名称！");
+		//$("#email").attr('class','form-error');
+		return false;
+	}else{
+		//$("#email").attr('class','form-ok');
+	}
+	$.ajax({
+		url:$('#competition_index').val()+"/index.php?ajax=competition&op=team_save&time="+ new Date().getTime(),
+		data:'team_name='+$("#team-name-input").val(),
+		type:'POST',
+		async:true,
+		beforeSend: function(){
+			pop_loading();
+		},
+		success: function(text){
+			pop_loading_close();
+			if(text){
+				alert(text);
+			}else{
+				window.location.reload();
+			}
+		}
+	});
+}
+//修改领袖
+function team_leader(id_user,display_name){
+	if(confirm('您确定要将“'+display_name+'”设为团队领袖吗？')){
+		$.ajax({
+			url:$('#competition_index').val()+"/index.php?ajax=competition&op=team_leader&time="+ new Date().getTime(),
+			data:'id_user='+id_user,
+			type:'POST',
+			async:true,
+			beforeSend: function(){
+				pop_loading();
+			},
+			success: function(text){
+				pop_loading_close();
+				window.location.reload();
+			}
+		});
+	}
+}
+//发送邀请
+function team_invite(){
+	if(!$("#invite-member-email").val()){
+		alert("请填写邮箱地址！");
+		//$("#email").attr('class','form-error');
+		return false;
+	}else{
+		//$("#email").attr('class','form-ok');
+	}
+	if($("#invite-member-email").val().match(/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/)==null){
+		alert("邮箱格式不正确！");
+		//$("#email").attr('class','form-error');
+		return false;
+	}else{
+		//$("#email").attr('class','form-ok');
+	}
+	$.ajax({
+		url:$('#competition_index').val()+"/index.php?ajax=competition&op=team_invite&time="+ new Date().getTime(),
+		data:'invite_email='+$("#invite-member-email").val()+"&id_competition="+url_get('id_competition'),
+		type:'POST',
+		async:true,
+		beforeSend: function(){
+			pop_loading();
+		},
+		success: function(text){
+			pop_loading_close();
+			if(text){
+				pop_alert(text);
+			}else{
+				alert('发送成功！');
+			}
+		}
+	});
+}
+//解散团队
+function team_disband(){
+	if(confirm('您确定要解散您的团队吗？')){
+		$.ajax({
+			url:$('#competition_index').val()+"/index.php?ajax=competition&op=team_disband&time="+ new Date().getTime(),
+			data:'',
+			type:'POST',
+			async:true,
+			beforeSend: function(){
+				pop_loading();
+			},
+			success: function(text){
+				pop_loading_close();
+				window.location.reload();
+			}
+		});
+	}
+}
+
+</script>
+
+<?php require(FILE_ROOT.'/views/view_footer.php'); ?>

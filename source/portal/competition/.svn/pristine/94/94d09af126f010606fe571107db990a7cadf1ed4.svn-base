@@ -1,0 +1,516 @@
+<?php
+class Competition{
+	
+	public function __construct($item=false){
+		$this->item=$item;
+	}
+	
+	####################
+	#主页
+	####################
+	
+	//竞赛列表
+	public function Index_result(){
+		global $DB;
+		//进行中的分类数组初始化
+		$active_list=array('featured'=>array('cn'=>'特别','competition'=>array()),
+						   'research'=>array('cn'=>'研究','competition'=>array()),
+						   'playground'=>array('cn'=>'操场','competition'=>array()),
+						   'getting-started'=>array('cn'=>'开始','competition'=>array()),
+						   'ge'=>array('cn'=>'通用','competition'=>array()),
+						   'masters'=>array('cn'=>'','competition'=>array()),
+						   'recruitment'=>array('cn'=>'补充','competition'=>array()));
+		
+		//默认排序
+		$sort_reward=array();
+		
+		//获取竞赛
+		$active_num=0;
+		$competitions_list=array();
+		$competitions_arr=mysql_query('select * from ka_competitions');
+		while($competition_arr=mysql_fetch_assoc($competitions_arr)){
+			//图片
+			if(file_exists(FILE_ROOT.'/images/competition/'.$competition_arr['id_competition'].'.jpg')){
+				$competition_arr['image']=LINK_ROOT.'/images/competition/'.$competition_arr['id_competition'].'.jpg';
+			}else{
+				$competition_arr['image']=LINK_ROOT.'/images/num_10.jpg';
+			}
+			
+			//到期时间
+			$deadline=ceil((strtotime($competition_arr['end_time'])-time())/60/60/24);
+			if($deadline>0){
+				$active_num++;
+				$competition_arr['deadline']=$deadline.'天';
+			}else{
+				$competition_arr['deadline']='已到期';
+			}
+			
+			//报酬类型
+			if($competition_arr['prize_1']==0){
+				$reward=0;
+				if($competition_arr['enterable']==1){
+					$competition_arr['reward']='知识';
+				}else{
+					$competition_arr['reward']='保护';
+				}
+			}else{
+				$reward=$competition_arr['prize_1']+$competition_arr['prize_2']+$competition_arr['prize_3'];
+				$competition_arr['reward']='￥'.$reward;
+				
+			}
+			if($deadline>0){
+				$sort_reward[]=$reward;
+			}
+			
+			//团队
+			$competition_arr['teams']=$DB->Get_one('select count(distinct id_user) from ka_submissions where id_competition='.$competition_arr['id_competition']);
+			
+			//活动的
+			if(isset($active_list[$competition_arr['type']])&&$deadline>0){
+				$active_list[$competition_arr['type']]['competition'][]=$competition_arr;
+			}
+			//所有的（默认进行中的）
+			if($deadline>0){
+				$competitions_list[]=$competition_arr;
+			}
+		}
+		array_multisort($sort_reward,SORT_DESC,SORT_NUMERIC,$competitions_list);//按报酬默认排序
+		$index_result=array('active_list'=>$active_list,'competitions_list'=>$competitions_list,'active_num'=>$active_num,'competitions_num'=>count($competitions_list));
+		return $index_result;
+	}
+	
+	//过滤
+	public function All(){
+		global $DB;
+		
+		//搜索过滤名称排序
+		$sql='select * from ka_competitions where id_competition!=0';
+		if($this->item['Query']){
+			$sql.=' and (name_competition like "%'.$this->item['Query'].'%" or introduce like  "%'.$this->item['Query'].'%") ';
+		}
+		if($this->item['SearchVisibility']=='EnterableCompetitions'){
+			$sql.=' and enterable=1';
+		}
+		if(isset($this->item['ShowInclass'])){
+			$sql.=' and in_class=1';
+		}
+		if(isset($this->item['name_competition'])){
+			$sql.=' order by name_competition '.$this->item['name_competition'];
+		}
+		
+		//其他排序
+		$sort_reward=array();
+		$sort_teams=array();
+		$sort_deadline=array();
+		
+		//获取竞赛
+		$active_num=0;
+		$competitions_list=array();
+		$competitions_arr=mysql_query($sql);
+		while($competition_arr=mysql_fetch_assoc($competitions_arr)){
+			//名称搜索高亮
+			$competition_arr['name_competition']=str_replace($this->item['Query'],'<font color=red>'.$this->item['Query'].'</font>',$competition_arr['name_competition']);
+			//描述搜索高亮
+			$competition_arr['introduce']=str_replace($this->item['Query'],'<font color=red>'.$this->item['Query'].'</font>',$competition_arr['introduce']);
+			
+			//图片
+			if(file_exists(FILE_ROOT.'/images/competition/'.$competition_arr['id_competition'].'.jpg')){
+				$competition_arr['image']=LINK_ROOT.'/images/competition/'.$competition_arr['id_competition'].'.jpg';
+			}else{
+				$competition_arr['image']=LINK_ROOT.'/images/num_10.jpg';
+			}
+			
+			//到期时间
+			$deadline=ceil((strtotime($competition_arr['end_time'])-time())/60/60/24);
+			if($deadline>0){
+				$active_num++;
+				$competition_arr['deadline']=$deadline.'天';
+				if(isset($this->item['ShowActive'])){
+					$sort_deadline[]=$deadline;
+				}
+			}else{
+				$competition_arr['deadline']='已到期';
+				if(isset($this->item['ShowCompleted'])){
+					$sort_deadline[]=$deadline;
+				}
+			}			
+			
+			//报酬类型
+			if($competition_arr['prize_1']==0){
+				$reward=0;
+				if($competition_arr['enterable']==1){
+					$competition_arr['reward']='知识';
+				}else{
+					$competition_arr['reward']='保护';
+				}
+			}else{
+				$reward=$competition_arr['prize_1']+$competition_arr['prize_2']+$competition_arr['prize_3'];
+				$competition_arr['reward']='￥'.$reward;
+				
+			}
+			if($deadline>0){
+				if(isset($this->item['ShowActive'])){
+					$sort_reward[]=$reward;
+				}
+			}else{
+				if(isset($this->item['ShowCompleted'])){
+					$sort_reward[]=$reward;
+				}
+			}
+			
+			//团队
+			$competition_arr['teams']=$DB->Get_one('select count(distinct id_user) from ka_submissions where id_competition='.$competition_arr['id_competition']);
+			if($deadline>0){
+				if(isset($this->item['ShowActive'])){
+					$sort_teams[]=$competition_arr['teams'];
+				}
+			}else{
+				if(isset($this->item['ShowCompleted'])){
+					$sort_teams[]=$competition_arr['teams'];
+				}
+			}
+			
+			//总的
+			if($deadline>0){
+				if(isset($this->item['ShowActive'])){
+					$competitions_list[]=$competition_arr;
+				}
+			}else{
+				if(isset($this->item['ShowCompleted'])){
+					$competitions_list[]=$competition_arr;
+				}
+			}
+			
+		}
+		//排序
+		if(isset($this->item['reward'])){
+			if($this->item['reward']=='desc'){
+				array_multisort($sort_reward,SORT_DESC,SORT_NUMERIC,$competitions_list);
+			}else{
+				array_multisort($sort_reward,SORT_ASC,SORT_NUMERIC,$competitions_list);
+			}
+		}
+		if(isset($this->item['temas'])){
+			if($this->item['teams']=='desc'){
+				array_multisort($sort_teams,SORT_DESC,SORT_NUMERIC,$competitions_list);
+			}else{
+				array_multisort($sort_teams,SORT_ASC,SORT_NUMERIC,$competitions_list);
+			}
+		}
+		if(isset($this->item['deadline'])){
+			if($this->item['deadline']=='desc'){
+				array_multisort($sort_deadline,SORT_DESC,SORT_NUMERIC,$competitions_list);
+			}else{
+				array_multisort($sort_deadline,SORT_ASC,SORT_NUMERIC,$competitions_list);
+			}
+		}
+		$competitions_num=count($competitions_list);
+		?>
+		<input type="hidden" id="competition_num" value="<?php echo $competitions_num; ?>" />
+		<input type="hidden" id="active_num" value="<?php echo $active_num; ?>" />
+		<?php
+		if($competitions_num>0){
+			foreach($competitions_list as $competition){
+			?>
+				<tr class="active-comp">
+				  <td><a href="<?php echo COMPETITION_INDEX; ?>/index.php?view=competition&id_competition=<?php echo $competition['id_competition']; ?>" target="_blank"><img class="competition-image" src="<?php echo $competition['image']; ?>" width="76" height="76" alt="seizure-prediction Image"></a>
+					<div class="competition-details">
+					  <div class="competitions-types"> </div>
+					  <a href="<?php echo COMPETITION_INDEX; ?>/index.php?view=competition&id_competition=<?php echo $competition['id_competition']; ?>" target="_blank">
+					  <h4><?php echo $competition['name_competition']; ?></h4>
+					  </a>
+					  <p class="competition-summary"> <a href="<?php echo COMPETITION_INDEX; ?>/index.php?view=competition&id_competition=<?php echo $competition['id_competition']; ?>" target="_blank"><?php echo $competition['introduce']; ?></a> </p>
+					</div></td>
+				  <td><?php echo $competition['reward']; ?></td>
+				  <td><?php echo $competition['teams']; ?></td>
+				  <td><?php echo $competition['deadline']; ?></td>
+				</tr>
+			 <?php
+			}
+		}else{
+			?>
+				<tr class="active-comp">
+				  <td colspan="4" style="height:50px">暂无任何竞赛</td>
+				</tr>
+			<?
+		}
+	}
+	
+	
+	
+	####################
+	#竞赛页
+	####################
+	
+	//竞赛详情
+	public function Detail(){
+		global $DB;
+		
+		$competition=$DB->Get_arr('select * from ka_competitions where id_competition='.$this->item['id_competition']);
+		
+		
+		//当前用户是否已接受规则
+		$competition['id_acception']=false;
+		if(isset($_SESSION['user'])){
+			$competition['id_acception']=$DB->Get_one('select id_acception from ka_acceptions where id_competition='.$this->item['id_competition'].' and id_user='.$_SESSION['user']['id_user']);
+		}
+		
+####头部####
+
+		//奖励
+		if($competition['prize_1']==0){
+			$reward=0;
+			if($competition['enterable']==1){
+				$competition['reward']='知识';
+			}else{
+				$competition['reward']='保护';
+			}
+		}else{
+			$reward=$competition['prize_1']+$competition['prize_2']+$competition['prize_3'];
+			$competition['reward']='￥'.$reward;
+			
+		}
+		//图片
+		if(file_exists(FILE_ROOT.'/images/competition/'.$competition['id_competition'].'.jpg')){
+			$competition['image']=LINK_ROOT.'/images/competition/'.$competition['id_competition'].'.jpg';
+		}else{
+			$competition['image']=LINK_ROOT.'/images/num_10.jpg';
+		}
+		//进行百分比
+		$competition['percent']=intval(((time()-strtotime($competition['start_time']))/(strtotime($competition['end_time'])-strtotime($competition['start_time'])))*100);
+		if($competition['percent']>100){
+			$competition['percent']=100;
+		}
+		
+		//进行天数
+		$competition['togo']=ceil((time()-strtotime($competition['start_time']))/60/60/24);
+		
+		//剩余时间
+		$competition['deadline']=ceil((strtotime($competition['end_time'])-time())/60/60/24);
+		
+		
+####左侧#####
+		
+		//排行榜
+		$teams_num=0;
+		$players_num=0;
+		$competition['leaderboard']=array();
+		/*$leaderboards=mysql_query('select ka_users.id_user,		ka_users.id_team,	ka_users.display_name,	ka_submissions.score,	ka_submissions.id_submission,	ka_submissions.submission_time
+					from ka_users,	ka_submissions
+					where ka_submissions.id_competition='.$this->item['id_competition'].' 
+					and ka_submissions.id_user=ka_users.id_user 
+					order by ka_submissions.score desc');
+		while($leaderboard=mysql_fetch_assoc($leaderboards)){
+			//$leaderboard['file_num']=$DB->Get_one('select count(*) from ka_files where id_submission='.$leaderboard['id_submission']);
+			//$leaderboard['upload_time']=$DB->Get_one('select upload_time from ka_files where id_submission='.$leaderboard['id_submission'].' order by upload_time desc');
+			$leaderboard['entries']=$DB->Get_one('select count(*) from ka_submissions where id_competition='.$this->item['id_competition'].' and id_user='.$leaderboard['id_user']);
+			$competition['leaderboard'][]=$leaderboard;
+		}*/
+		$subuser_list=array();
+		$subusers=mysql_query('select id_user from ka_submissions where id_competition='.$this->item['id_competition'].' order by score desc');
+		while($subuser=mysql_fetch_assoc($subusers)){
+			$subuser_list[]=$subuser['id_user'];
+		}
+		$subuser_list=array_unique($subuser_list);
+		foreach($subuser_list as $subuser){
+			$leaderboard=$DB->Get_arr('select ka_users.id_user, ka_users.team,	ka_users.is_leader,	ka_users.display_name,	ka_submissions.score,	ka_submissions.id_submission,	ka_submissions.submission_time
+									  from ka_users,	ka_submissions
+									  where ka_submissions.id_competition='.$this->item['id_competition'].' 
+									  and ka_submissions.id_user=ka_users.id_user 
+									  and ka_submissions.id_user='.$subuser.'
+									  order by ka_submissions.score desc');
+			$leaderboard['entries']=$DB->Get_one('select count(*) from ka_submissions where id_competition='.$this->item['id_competition'].' and id_user='.$leaderboard['id_user']);
+			
+			if($leaderboard['is_leader']){
+				$leaderboard['display_name']=$leaderboard['team'];
+				$leaderboard['member']=array();
+				$members=mysql_query('select id_user,display_name from ka_users where team="'.$leaderboard['team'].'" order by is_leader desc');
+				while($member=mysql_fetch_assoc($members)){
+					$leaderboard['member'][]=$member;
+					$players_num++;
+				}
+			}else{
+				$players_num++;
+			}
+			$competition['leaderboard'][]=$leaderboard;
+			$teams_num++;
+		}
+		//团队数
+		$competition['teams']=$teams_num;
+		//参与者数
+		$competition['players']=$players_num;
+		//已提交数
+		$competition['entries']=$DB->Get_one('select count(*) from ka_submissions where id_competition='.$this->item['id_competition']);
+		
+		
+####中间####
+		
+		//数据
+		$competition['file']=array();
+		if(file_exists(FILE_ROOT.'/data/'.$competition['id_competition'])){
+			$files_dir=FILE_ROOT.'/data/'.$competition['id_competition'];
+			$files_arr=scandir($files_dir);
+			if($files_arr){
+				foreach($files_arr as $key=>$file){
+					if($key>1){
+					  $file_arr=array();
+					  $file_arr['name']=$file;
+					  //$file_arr['extend_name']='.'.explode('.',$file)[count(explode('.',$file))-1];
+					  $file_arr['extend_name']='.'.pathinfo($file)['extension'];
+					  $file_arr['url']=LINK_ROOT.'/data/'.$competition['id_competition'].'/'.$file;
+					  $file_arr['size']=(ceil(filesize($files_dir.'/'.$file)/1024)).'KB';
+					  $competition['file'][]=$file_arr;
+					}
+				}
+			}
+		}
+		//数据说明
+		if(!$competition['data']){
+			$competition['data']='暂无任何数据说明';
+		}
+		//描述
+		if(!$competition['description']){
+			$competition['description']='暂无任何描述';
+		}
+		//评价
+		if(!$competition['evaluation']){
+			$competition['evaluation']='暂无任何评价';
+		}
+		//规则
+		if(!$competition['rule']){
+			$competition['rule']='暂无任何规则';
+		}
+		
+		if(isset($_SESSION['user'])){
+			//我的参与
+			$competition['sublist']=array();
+			$sublists=mysql_query('select * from ka_submissions where id_competition='.$this->item['id_competition'].' and id_user='.$_SESSION['user']['id_user'].' order by score desc');
+			while($sublist=mysql_fetch_assoc($sublists)){
+				if(file_exists(FILE_ROOT.'/submission/'.$sublist['id_submission'].'/')){
+					$sublist['file']=scandir(FILE_ROOT.'/submission/'.$sublist['id_submission'].'/')[2];
+					$sublist['url']=LINK_ROOT.'/submission/'.$sublist['id_submission'].'/'.$sublist['file'];
+				}else{
+					$sublist['file']='-';
+					$sublist['url']='';
+				}
+				$competition['sublist'][]=$sublist;
+			}
+		}
+		
+		
+		
+		return $competition;
+	}
+	
+	//同意规则
+	public function Accept(){
+		mysql_query('insert into ka_acceptions
+					(id_competition,							id_user,									accept_time	) 	values 
+					("'.$this->item['id_competition'].'",		"'.$_SESSION['user']['id_user'].'",			"'.date('Y-m-d H:i:s',time()).'"	)');
+	}
+	
+	
+	//参与竞赛
+	/*public function Submission(){
+		mysql_query('insert into ka_submissions
+					(id_competition,							id_user,								score,		last_time	) 	values 
+					("'.$this->item['id_competition'].'",		"'.$_SESSION['user']['id_user'].'",		0,			"'.date('Y-m-d H:i:s',time()).'"	)');
+	}*/
+	
+	//参与竞赛//上传文件
+	//public function Upload($get=false,$file=false){
+	public function Submission($get=false,$file=false){
+		mysql_query('insert into ka_submissions
+					(id_competition,							id_user,								score,		description,					submission_time	) 	values 
+					("'.$get['id_competition'].'",		"'.$_SESSION['user']['id_user'].'",		0,			"'.$get['description'].'",		"'.date('Y-m-d H:i:s',time()).'"	)');
+		//print_r($file);
+		//exit;
+		//验证扩展名
+		$extension_arr=array('cvs','zip','rar','gz','7z');
+		$filename_arr=pathinfo($file['Filedata']["name"]);
+		if(!in_array($filename_arr['extension'],$extension_arr)){
+			echo '扩展名不能为'.$filename_arr['extension'];
+			exit;
+		}
+		
+		$submission=FILE_ROOT.'/submission/'.mysql_insert_id().'/';
+		$filepath=$submission.'/'.$file['Filedata']["name"];
+		if(!file_exists($submission)){
+			mkdir($submission);
+			exec('export LANG=C; /usr/bin/sudo chmod 777 '.$submission);
+		}
+		move_uploaded_file($file['Filedata']["tmp_name"],$filepath);
+		
+		/*global $DB;
+		$is_exists=$DB->Get_one('select name_file from ka_files where id_submission='.$get['id_submission'].' and name_file="'.$file['Filedata']["name"].'"');
+		
+		if($is_exists){
+			mysql_query('update ka_files set size="'.$file['Filedata']["size"].'",description="'.$get['description'].'",upload_time="'.date('Y-m-d H:i:s',time()).'"  
+										where id_submission='.$get['id_submission'].' 
+										and name_file="'.$file['Filedata']["name"].'"');
+		}else{
+			mysql_query('insert into ka_files (id_submission,				name_file,							size,								description,				upload_time) values 
+											  ("'.$get['id_submission'].'",	"'.$file['Filedata']["name"].'",	"'.$file['Filedata']["size"].'",	"'.$get['description'].'",	"'.date('Y-m-d H:i:s',time()).'")');
+		}*/
+		
+	}
+	
+	//创建团队
+	public function Team_creat(){
+		global $DB;
+		$team_name=$DB->Get_one('select team from ka_users where team="'.trim($this->item['team_name']).'"');
+		if($team_name){
+			echo '该名称已存在！';
+			exit;
+		}
+		mysql_query('update ka_users set team="'.trim($this->item['team_name']).'",is_leader=1 where id_user='.$_SESSION['user']['id_user']);
+		$_SESSION['user']['team']=trim($this->item['team_name']);
+		$_SESSION['user']['is_leader']=1;
+	}
+	
+	//修改团队名称
+	public function Team_save(){
+		global $DB;
+		$team_name=$DB->Get_one('select team from ka_users where team="'.trim($this->item['team_name']).'"');
+		if($team_name){
+			echo '该名称已存在！';
+			exit;
+		}
+		mysql_query('update ka_users set team="'.trim($this->item['team_name']).'" where team="'.$_SESSION['user']['team'].'" ');
+		$_SESSION['user']['team']=trim($this->item['team_name']);
+	}
+	
+	//修改团队领袖
+	public function team_leader(){
+		mysql_query('update ka_users set is_leader=0 where id_user='.$_SESSION['user']['id_user']);
+		mysql_query('update ka_users set is_leader=1 where id_user='.$this->item['id_user']);
+		$_SESSION['user']['is_leader']=0;
+	}
+	//发送邀请
+	public function team_invite(){
+		global $DB;
+		$id_user=$DB->Get_one('select id_user from ka_users where email="'.trim($this->item['invite_email']).'"');
+		if($id_user){
+			echo $_SESSION['user']['team'].'邀请您加入'.COMPETITION_INDEX.'/index.php?ajax=competition&op=team_accept&id_user='.$id_user.'&id_competition='.$this->item['id_competition'].'&team='.$_SESSION['user']['team'];
+		}else{
+			echo '用户不存在！';
+		}
+	}
+	//接受邀请
+	public function team_accept($get){
+		global $DB;
+		mysql_query('update ka_users set team="'.$get['team'].'" where id_user='.$get['id_user']);
+		$_SESSION['user']=$DB->Get_arr('select * from ka_users where id_user='.$get['id_user']);
+		echo '<script>alert("您已接受'.$get['team'].'的邀请！")</script>';
+		echo '<script>window.location="'.COMPETITION_INDEX.'/index.php?view=competition_team&id_competition='.$get['id_competition'].'" </script>';
+	}
+	//团队解散
+	public function team_disband(){
+		mysql_query('update ka_users set team="",is_leader=0 where team="'.$_SESSION['user']['team'].'" ');
+		$_SESSION['user']['team']='';
+		$_SESSION['user']['is_leader']=0;
+	}
+	
+	
+}
+?>

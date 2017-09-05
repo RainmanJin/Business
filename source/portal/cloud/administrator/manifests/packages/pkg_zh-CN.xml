@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="package" version="3" method="upgrade">
+	<name>Chinese Language Pack</name>
+	<packagename>zh-CN</packagename>
+	<packager>joomlagate</packager>
+	<copyright>http://www.joomlagate.com</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<authorEmail>joomlagate@gmail.com</authorEmail>
+	<authorUrl>http://www.joomlagate.com</authorUrl>
+	<version>3.3.3</version>
+	<description>Joomla 3.3 核心中文语言包，由 Joomla之门（http://www.joomlagate.com）打包。</description>
+	<files>
+	    <file type="language" client="site" id="zh-CN">site_zh-CN.zip</file>
+       	<file type="language" client="administrator" id="zh-CN">admin_zh-CN.zip</file>
+	    <file type="language" client="site" id="zh-TW">site_zh-TW.zip</file>
+       	<file type="language" client="administrator" id="zh-TW">admin_zh-TW.zip</file>
+	</files>
+</extension>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.lc.sofa</groupId>
+		<artifactId>sofa-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	
+	<groupId>com.lc.sofa.flex.workspace</groupId>
+	<artifactId>com.lc.sofa.flex.workspace</artifactId>
+	<packaging>bundle</packaging>
+	<name>com.lc.sofa.flex.workspace</name>
+	<version>1.0.0-SNAPSHOT</version>
+	<url>http://www.springframework.org/osgi</url>
+	
+	<dependencies>
+	
+		<dependency>
+			<groupId>com.lc.sofa</groupId>
+			<artifactId>com.lc.sofa.core.framework</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		
+	</dependencies>
+</project>

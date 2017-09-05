@@ -1,0 +1,25 @@
+        <header class="info">
+          <div class="simple-steps"> 
+          <a class="info" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=competition&id_competition=<?php echo $competition['id_competition']; ?>">竞赛详情</a> » 
+          <a class="data" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=competition_data&id_competition=<?php echo $competition['id_competition']; ?>">下载数据</a> » 
+		  <?php
+          if($competition['deadline']>0&&$competition['enterable']==1){
+              if(isset($_SESSION['user'])){
+                  if($competition['id_acception']){
+                  ?>
+                      <a class="submit" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=competition_subchoose&id_competition=<?php echo $competition['id_competition']; ?>">
+                  <?php
+                  }else{
+                  ?>	
+                      <a class="submit" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=competition_rule&id_competition=<?php echo $competition['id_competition']; ?>&confirm=1">
+                  <?php
+                  }
+              }else{
+              ?>
+                  <a class="submit" href="<?php echo COMPETITION_INDEX; ?>/index.php?view=login">
+              <?php
+              }
+          }
+          ?>
+          提交数据</a> 
+        </header>

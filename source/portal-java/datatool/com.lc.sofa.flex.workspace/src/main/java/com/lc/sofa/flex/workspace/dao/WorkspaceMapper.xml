@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lc.sofa.flex.workspace.dao.WorkspaceMapper">
+	<resultMap id="DirectorieResult" type="com.lc.sofa.flex.workspace.vo.DirectorieVO">
+		<result column="id" property="id" />
+		<result column="pId" property="pId" />
+		<result column="name" property="name" />
+		<result column="open" property="open" />
+		<result column="isEmpty" property="isEmpty" />
+	</resultMap>
+	<resultMap id="FileListResult" type="com.lc.sofa.flex.workspace.vo.FileListVO">
+		<result column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="type" property="type" />
+		<result column="isEmpty" property="isEmpty" />
+	</resultMap>
+	<select id="getDirectories" parameterType="map" resultMap="DirectorieResult">
+		select id,t.parentid pId,name,open,isEmpty from
+		sofa.sofa_workspace_designfiletree
+		t where t.userid=#{userid} and
+		t.modeltype=#{modelname} and
+		t.type = 'd'
+	</select>
+	<select id="getFileList" parameterType="map" resultMap="FileListResult">
+		select
+		id,name,type,isEmpty from sofa.sofa_workspace_designfiletree t where
+		t.userid=#{userid} and t.parentid=#{directoryid}
+	</select>
+
+	<insert id="insertDesignFileTree" parameterType="java.util.List">
+		insert into
+		sofa.sofa_workspace_designfiletree
+		(id,name,type,designFileID,parentID,userID,modelType,open,isEmpty)
+		<foreach collection="list" item="item" index="index"
+			separator="union all">
+			select #{item.id},
+			#{item.name},
+			#{item.type},
+			#{item.designFileId},
+			#{item.pId},
+			#{item.userId},
+			#{item.modelType},
+			#{item.open},
+			#{item.isEmpty}
+			from dual
+		</foreach>
+	</insert>
+
+	<update id="updateDesignFileTree" parameterType="map">
+		update
+		sofa.sofa_workspace_designfiletree set
+		id=#{name},
+		name=#{name},
+		type=#{type},
+		designFileID=#{designFileID},
+		parentID=#{parentID},
+		userID=#{userID},
+		modelType=#{modelType},
+		open=#{open},
+		isEmpty=#{isEmpty}
+		where
+		id=#{id}
+	</update>
+
+	<delete id="deleteDesignFileTreeByIDAndModelType" parameterType="map">
+		delete from
+		sofa.sofa_workspace_designfiletree
+		where userID=#{userid}
+		and
+		modeltype=#{modelType} and
+		type = 'd'
+	</delete>
+
+	<delete id="deleteDesignFileTree" parameterType="map">
+		delete from
+		sofa.sofa_workspace_designfiletree
+		where userID=#{userid}
+		and
+		modeltype=#{modelType} and
+		type =#{type} and
+		id IN
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<delete id="deleteDesignFile" parameterType="map">
+		delete from
+		sofa.SOFA_BI_DASHBOARD_DESIGNFILE
+		where userID=#{userid} and
+		id IN
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+</mapper>

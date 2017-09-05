@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<context:component-scan base-package="com.lc.sofa.flex.workspace" />
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!--dataSource spring bean -->
+	<bean id="dataSourceId" class="com.lc.sofa.core.framework.basis.datasource.DsIdFactoryBean"></bean>
+	<bean id="dataSource" class="com.lc.sofa.core.framework.basis.datasource.SimpleDriveDataSource">
+		<property name="dataSourceId" ref="dataSourceId" />
+		<property name="dataSourceFactory" ref="dataSourceFactory" />
+	</bean>
+
+	<!--transaction manager spring bean -->
+	<bean id="transactionManager" class="com.lc.sofa.core.framework.basis.datasource.SimpleTransactionManager">
+		<property name="dataSourceId" ref="dataSourceId" />
+		<property name="dataSourceFactory" ref="dataSourceFactory" />
+	</bean>
+	
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="sort*" propagation="REQUIRED" />
+			<tx:method name="set*" propagation="REQUIRED" />
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:aspectj-autoproxy expose-proxy="true" />
+	
+	<aop:config expose-proxy="true">
+		<aop:pointcut id="txPointcut" expression="execution(* com.lc.sofa.flex.workspace.service.impl.*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
+	</aop:config>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">        
+       <property name="configLocation" value="/WEB-INF/sqlmap/sqlmapconfig.xml"></property>        
+       <property name="dataSource" ref="dataSource" /> 
+        <property name="plugins">
+           <list>  
+                <ref bean="pageHandleService"/>
+           </list>
+        </property> 
+    </bean>
+
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<!-- SpringFactory settings -->
+	<bean class="com.lc.sofa.core.framework.support.ApplicationContextTransmitter" />
+	
+	<!-- messages settings -->
+	<bean id="i18nResourceBean" class="com.lc.sofa.core.framework.component.i18n.I18nResourceFactoryBean"/>
+	
+	<!-- log settings -->
+	<bean id="sofaUniformInterceptor" class="com.lc.sofa.core.framework.component.aop.SofaUniformInterceptor" /> 
+	
+	<!-- dao settings -->
+	<bean id="workspaceMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">    
+    	<property name="mapperInterface" value="com.lc.sofa.flex.workspace.dao.WorkspaceMapper"></property>       
+    	<property name="sqlSessionTemplate" ref="sqlSession"></property>
+    </bean>
+	<bean id="logginMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">    
+    	<property name="mapperInterface" value="com.lc.sofa.flex.workspace.dao.LogginMapper"></property>       
+    	<property name="sqlSessionTemplate" ref="sqlSession"></property>
+    </bean>
+</beans>

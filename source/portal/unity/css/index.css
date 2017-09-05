@@ -1,0 +1,114 @@
+@charset "utf-8";
+/* CSS Document */
+
+.pop_alert {
+	text-align:center;
+	line-height:20px;
+	margin-top:15px;
+}
+#pop_loading p{
+    /*display:block;*/
+    /*line-height:30px;*/
+    text-align:center;
+    color:#2E6E9E;
+    font-size:12px;
+}
+#pop_loading_word{
+	line-height:30px;
+}
+#pop_loading_second{
+	background:url(../images/ajaxLoader.gif);
+	width:43px;
+	height:43px; 
+	line-height:43px;
+	/*font-size:12px; */
+	font-weight:bold; 
+	margin:auto;
+	/*padding:0;*/
+}
+
+.form-login {
+	float:right;
+	border:1px solid #ccc;
+	padding:20px;
+	margin-bottom:20px;
+}
+.form-login p {
+	margin:10px;
+}
+
+.form-login-pop {
+	padding:10px;
+}
+.form-login-pop p {
+	margin:10px;
+}
+
+.form-regist {
+	border:1px solid #ccc;
+	padding:20px;
+	margin-bottom:20px;
+	width:350px
+}
+.form-regist p {
+	margin:10px;
+}
+
+.form-control {
+	width:240px;
+	height:24px;
+	padding:5px;
+	border:1px solid #ccc;
+}
+.form-control:focus {
+	border-color: #66afe9;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6);
+	outline: 0 none;
+}
+.form-error {
+	width:240px;
+	height:24px;
+	padding:5px;
+	border:1px solid #f13340;
+	background: url("../images/form-error.png") no-repeat scroll 98% 10px #fff1f2;
+}
+.form-ok {
+	width:240px;
+	height:24px;
+	padding:5px;
+	border:1px solid #46a74e;
+	background: url("../images/form-ok.png") no-repeat scroll 98% 10px #ddf9e1;
+}
+.validate{
+	width:60px;
+	height:20px;
+	padding:3px;
+	border:1px solid #ccc;
+	vertical-align:middle;
+}
+.validate:focus {
+	border-color: #66afe9;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6);
+	outline: 0 none;
+}
+.validate-error{
+	width:60px;
+	height:20px;
+	padding:3px;
+	vertical-align:middle;
+	border:1px solid #f13340;
+	background: url("../images/form-error.png") no-repeat scroll 98% 5px #fff1f2;
+}
+.validate-ok{
+	width:60px;
+	height:20px;
+	padding:3px;
+	vertical-align:middle;
+	border:1px solid #46a74e;
+	background: url("../images/form-ok.png") no-repeat scroll 98% 5px #ddf9e1;
+}
+.validate_img{
+	width:60px;
+	height:28px;
+	vertical-align:middle
+}
